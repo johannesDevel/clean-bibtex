@@ -11,11 +11,10 @@ class App extends Component {
         <header className="App-header">
           <a
             className="App-link"
-            href=""
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
-          >
-            cleanBibteX
+          >cleanBibteX
           </a>
         </header>
         <AppStart />
