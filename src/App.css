@@ -1,5 +1,11 @@
+@import url("https://fonts.googleapis.com/css?family=Ubuntu&display=swap");
+
+body {
+  font-family: "Ubuntu", sans-serif;
+}
+
 .App-header {
-  background-color:	#A0B7D6 ;
+  background-color: #a0b7d6;
   height: 80px;
   color: white;
   display: flex;
@@ -14,46 +20,94 @@
 .start-wrapper {
   display: flex;
   justify-content: center;
+  margin-bottom: 30px;
 }
 
 .start {
-  background-color: #E7EBF4;
-  margin: 40px;
-  height: 300px;
+  background-color: #e7ebf4;
+  margin-top: 20px;
+  /* height: 200px; */
+  width: 90%;
   border: 1px solid lightgrey;
 }
 
-.start-inputs { 
-  height: 200px;
+.start-inputs {
+  height: 160px;
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 50px;
+  align-content: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
 .start-input-field {
-  width: 30%;
   resize: none;
+  margin-left: 20px;
+  margin-right: 20px;
+  font-size: 1.2em;
+  flex-grow: 1;
 }
 
 .start-upload-button {
   background-color: #3360d5;
+  margin-right: 20px;
+  font-size: 1.2em;
+  color: white;
+  flex-grow: 1;
+}
+
+.input-file {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.start-upload-button label {
+  display: block;
+  height: 100%;
+  text-align: center;
 }
 
 button {
-  margin-left: 20px;
   margin-right: 20px;
-  font-size: 1.5em;
+  font-size: 1.2em;
   color: white;
+  flex-grow: 1;
 }
 
-.start-analyze-button {
-  background-color: rgb(82, 123, 184);
+.start-help-text {
+  margin: 20px;
+  font-size: 1.1em;
+}
+
+.error-list-item {
+  padding: 20px;
+  margin: 20px;
+  background: white;
+}
+
+.error-list-item:hover {
+  background: rgb(194, 217, 247);
+}
+
+.download-button {
+  color: black;
+  background-color: #a0b7d6;
+  margin: 15px;
+  padding: 5px;
+}
+
+@media all and (max-width: 700px) {
+  .start {
+    width: 100%;
+  }
 }
 
 @media all and (min-width: 1600px) {
   .start {
-    width: 800px;
+    width: 1000px;
   }
-
 }
