@@ -74,8 +74,10 @@ body {
 button {
   margin-right: 20px;
   font-size: 1.2em;
-  color: white;
   flex-grow: 1;
+}
+.btn-toggle-advanced {
+  background: rgb(194, 217, 247);
 }
 
 .start-help-text {

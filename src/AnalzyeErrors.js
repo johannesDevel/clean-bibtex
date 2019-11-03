@@ -3,26 +3,14 @@ import Tabs from "./Tabs";
 import CapitalizationCheck from "./CapitalizationCheck";
 
 class AnalyzeErrors extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      textInput: "",
-      fileInput: ""
-    };
-  }
+  state = {
+    textInput: "",
+    fileInput: ""
+  };
 
   categories = ["Capitalization", "Author name", "Mandatory fields"];
 
   render() {
-    let capitalizationErrors = {};
-
-    Object.values(this.props.errors).map(error => {
-      if (error.errorType === "Capitalization") {
-        capitalizationErrors = error;
-      }
-    });
-
     return (
       <div className="start-wrapper">
         <div className="start">
@@ -31,42 +19,24 @@ class AnalyzeErrors extends Component {
           </div> */}
           <div>
             <Tabs>
-              <div label="Capitalization">
+              <div
+                label="Capitalization"
+                status={this.props.errors.capitalization.length === 0}
+              >
                 <CapitalizationCheck
-                  error={capitalizationErrors}
-                  entriesSum={this.props.entries.length}
+                  errors={this.props.errors.capitalization}
                   entries={this.props.entries}
-                  corrections={this.props.corrections}
+                  corrections={this.props.corrections.capitalization}
                 />
               </div>
-              <div label="Author name">
+              <div label="Author name" status={true}>
                 See ya later, <em>category 2</em>!
               </div>
-              <div label="Mandatory fields">
+              <div label="Mandatory fields" status={true}>
                 See ya later, <em>category 3</em>!
               </div>
             </Tabs>
           </div>
-          {/* <ol>
-            {foundErrors.map(error => (
-              <li className="error-list-item" key={error.id}>
-                <div>
-                  <div>
-                    <strong>{`${error.errorType} Error`}</strong>
-                  </div>
-                  <div>
-                    {Object.keys(error.errorDetails).map(key => (
-                      <span key={error.errorDetails[key]}>
-                        {`${key} : ${error.errorDetails[key]} `}
-                        <br></br>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ol> */}
-
           <button className="download-button">Download BibTeX</button>
         </div>
       </div>
