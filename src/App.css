@@ -124,6 +124,43 @@ button {
   border: 1;
 }
 
+td {
+  /* border: 2px solid lightgrey; */
+}
+
+th {
+  background: rgb(194, 217, 247);
+}
+
+table {
+  margin-top: 30px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 30px;
+  /* border: 2px solid lightgrey; */
+}
+
+.current-correction {
+  background-color: #e2fbd8;
+}
+
+.title-case-correction {
+  background-color: #fbd8d8;
+}
+
+.sentence-case-correction {
+  background-color: #fbd8d8;
+}
+
+.corrections-table {
+  background: white;
+  padding: 10px;
+}
+
+.statistic {
+  margin: 15px;
+}
+
 @media all and (max-width: 700px) {
   .start {
     width: 100%;

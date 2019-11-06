@@ -3,27 +3,49 @@ import "./App.css";
 import AppStart from "./AppStart";
 import * as BibtexAPI from "./utils/BibtexAPI";
 import AnalyzeErrors from "./AnalzyeErrors";
-import mockData from "./utils/MockData"
+import mockData from "./utils/MockData";
 
 class App extends Component {
-  state = mockData;
+  // state = mockData;
+  state = {
+    entries: [],
+    errors: {
+      capitalization: [],
+      authorName: [],
+      mandatoryFields: []
+    },
+    corrections: {
+      capitalization: [],
+      authorName: [],
+      mandatoryFields: []
+    }
+  };
 
-  // componentDidMount() {
-  //   BibtexAPI.get().then(foundTitleErrors => {
-  //     this.setState({ foundErrors: [...foundTitleErrors] });
-  //     console.log(foundTitleErrors);
-  //   });
-  // }
+  componentDidMount() {
+    BibtexAPI.get().then(stateServer => {
+      this.setState({ 
+        entries: stateServer.entries,
+        errors: stateServer.errors,
+        corrections: stateServer.corrections
+       });
+      console.log(stateServer);
+    });
+  }
 
   onSetBibtexText = textInput => {
     const textInputObject = { bibtexText: textInput };
     BibtexAPI.create(textInputObject).then(text => {
-      this.setState(() => ({
-        bibtexText: textInput
-      }));
-      // BibtexAPI.get().then(foundTitleErrors => {
-      //   this.setState({ foundErrors: [...foundTitleErrors] });
-      // });
+      // this.setState(() => ({
+      //   bibtexText: textInput
+      // }));
+      BibtexAPI.get().then(stateServer => {
+        this.setState({ 
+          entries: stateServer.entries,
+          errors: stateServer.errors,
+          corrections: stateServer.corrections
+        });
+        console.log(stateServer);
+      });
     });
   };
 

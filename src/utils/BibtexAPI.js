@@ -12,8 +12,7 @@ const headers = {
 
 export const get = () =>
   fetch(`${api}/bibtex`, { headers })
-    .then(res => res.json())
-    .then(data => data.foundErrors);
+    .then(res => res.json());
 
 export const create = body =>
   fetch(`${api}/bibtex`, {

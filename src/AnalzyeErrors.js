@@ -14,9 +14,6 @@ class AnalyzeErrors extends Component {
     return (
       <div className="start-wrapper">
         <div className="start">
-          {/* <div className="start-help-text">
-            {`${foundErrors.length} inconsistencies found`}
-          </div> */}
           <div>
             <Tabs>
               <div
@@ -30,10 +27,10 @@ class AnalyzeErrors extends Component {
                 />
               </div>
               <div label="Author name" status={true}>
-                See ya later, <em>category 2</em>!
+                TODO
               </div>
               <div label="Mandatory fields" status={true}>
-                See ya later, <em>category 3</em>!
+                TODO
               </div>
             </Tabs>
           </div>

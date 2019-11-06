@@ -53,6 +53,7 @@ class CapitalizationCheck extends Component {
 
     return (
       <div>
+        <div className="statistic">
         <h3>Summary</h3>
         <ul>
           <li>{entries.length} Entries found</li>
@@ -61,12 +62,14 @@ class CapitalizationCheck extends Component {
         </ul>
 
         <button className="btn-toggle-advanced" onClick={this.handleButton}>
-          Manual Selection
+          Correct errors
         </button>
-        <button className="btn-toggle-advanced">Set all to title case</button>
+        </div>
 
-        {this.state.showAdvancedSettings && (
-          <div>
+
+        {this.state.showAdvancedSettings && errors.length > 0 && corrections.length > 0 && (
+          <div className="corrections-table">
+            <p>Select options to correct the errors:</p>
             <table>
               <tbody>
                 <tr>
@@ -78,15 +81,15 @@ class CapitalizationCheck extends Component {
               {errors.map(id => (
                 <tbody key={id}>
                   <tr>
-                    <td>
+                    <td className="current-correction">
                       <input
                         name={`radio-${id}`}
                         type="radio"
                         onChange={() => this.removeCorrectedElement(id)}
                       />
-                      {entries.find(entry => entry.id === id).title}
+                      {entries.find(entry => entry.id === id).TITLE}
                     </td>
-                    <td>
+                    <td className="title-case-correction">
                       <input
                         name={`radio-${id}`}
                         type="radio"
@@ -96,9 +99,9 @@ class CapitalizationCheck extends Component {
                           )
                         }
                       />
-                      {this.getCorrectedTitleCase(id).title}
+                      {this.getCorrectedTitleCase(id).TITLE}
                     </td>
-                    <td>
+                    <td className="sentence-case-correction">
                       <input
                         name={`radio-${id}`}
                         type="radio"
@@ -108,13 +111,15 @@ class CapitalizationCheck extends Component {
                           )
                         }
                       />
-                      {this.getCorrectedSentenceCase(id).title}
+                      {this.getCorrectedSentenceCase(id).TITLE}
                     </td>
                   </tr>
                 </tbody>
               ))}
             </table>
             <button onClick={this.handleSaveSelection}>Accept selection</button>
+            <button>Set all to title case</button>
+            <button>Set all to sentence case</button>
           </div>
         )}
       </div>
