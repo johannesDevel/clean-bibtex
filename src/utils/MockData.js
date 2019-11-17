@@ -4,13 +4,13 @@ const mockData = {
     {
       id: 1,
       author: "Milton Abramowitz and Irene A. Stegun",
-      title: "Handbook of mathematical Functions Wit Tables"
+      title: "Handbook of mathematical Functions with Tables"
     },
     {
       id: 2,
       author: "Bex, Floris and Villata, Serena",
       title:
-        "Legal knowledge and information systems: JURIX 2016: the Twenty-Ninth Annual Conference"
+        "Legal knowledge and information systems: JURIX 2016: the twenty-ninth annual conference"
     },
     {
       id: 3,
@@ -29,10 +29,14 @@ const mockData = {
       title: "Computer Security Principles and Practice"
     }
   ],
-  errors: {
-    capitalization: [1, 2],
-    authorName: [3, 4],
-    mandatoryFields: [5]
+  categories: {
+    capitalization: {
+      titleCase: [3, 4],
+      sentenceCase: [2],
+      caseNotFound: [1]
+    },
+    authorName: {},
+    mandatoryFields: {}
   },
   corrections: {
     capitalization: [

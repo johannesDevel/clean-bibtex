@@ -5,12 +5,40 @@ import CapitalizationCheck from "./CapitalizationCheck";
 class AnalyzeErrors extends Component {
   state = {
     textInput: "",
-    fileInput: ""
+    fileInput: "",
+    // options: []
   };
 
   categories = ["Capitalization", "Author name", "Mandatory fields"];
 
+  changeOptions = (id, checked) => {
+    const foundOption = this.state.options.find(option => option.id === id);
+    foundOption.checked = checked;
+
+
+    // if (foundOption != null) {
+    // this.setState(prevState => {
+    //   options: prevState.filter(options)
+    // })
+    // }
+  }
+
+
   render() {
+    // const createdOptions = this.props.entries.map(entry => (
+    //   {
+    //     id: entry.id,
+    //     checked: true
+    //   }
+    // ));
+
+    // this.setState(
+    //   {
+    //     options: createdOptions
+    //   }
+    // );
+
+
     return (
       <div className="start-wrapper">
         <div className="start">
@@ -18,12 +46,14 @@ class AnalyzeErrors extends Component {
             <Tabs>
               <div
                 label="Capitalization"
-                status={this.props.errors.capitalization.length === 0}
+                status={this.props.categories.capitalization.caseNotFound.length === 0}
               >
                 <CapitalizationCheck
-                  errors={this.props.errors.capitalization}
+                  categories={this.props.categories.capitalization}
                   entries={this.props.entries}
                   corrections={this.props.corrections.capitalization}
+                  optionsCheckboxes={this.props.optionsCheckboxes}
+                  changeOption={this.props.changeOption}
                 />
               </div>
               <div label="Author name" status={true}>

@@ -4,6 +4,7 @@ class CapitalizationCheck extends Component {
   state = {
     showAdvancedSettings: false,
     correctedElements: [],
+    allSelected: false
   };
 
   getCorrectedTitleCase = id =>
@@ -19,68 +20,34 @@ class CapitalizationCheck extends Component {
         correction.correctionType === "SentencesCase"
     );
 
-  getTitleCaseEntries = entry => {
-    if (!this.props.errors.includes(entry.id)) {
-      return entry;
-    }
-    else {
-      return { TITLE: 'no entry' };
-    }
-  };
-
   handleButton = () => {
     this.setState(prevState => ({
       showAdvancedSettings: !prevState.showAdvancedSettings
     }));
   };
 
-  addCorrectedSentencesElement = selectedEntry => {
-    const filteredcorrectedElements = this.state.correctedElements.filter(
-      element => element.entryId !== selectedEntry.entryId
-    );
-    filteredcorrectedElements.push(selectedEntry);
-    this.setState({
-      correctedElements: filteredcorrectedElements,
-      defaultValueChecked: false
-    });
-    console.log(
-      `radio button default value is: ${this.state.defaultValueChecked}`
-    );
-  };
-
-  addCorrectedTitleElement = selectedEntry => {
-    const filteredcorrectedElements = this.state.correctedElements.filter(
-      element => element.entryId !== selectedEntry.entryId
-    );
-    filteredcorrectedElements.push(selectedEntry);
-    this.setState({
-      correctedElements: filteredcorrectedElements,
-      defaultValueChecked: false
-    });
-    console.log(
-      `radio button default value is: ${this.state.defaultValueChecked}`
-    );
-  };
-
-  removeCorrectedElement = id => {
-    const filteredcorrectedElements = this.state.correctedElements.filter(
-      element => element.entryId !== id
-    );
-    this.setState({
-      correctedElements: filteredcorrectedElements,
-      defaultValueChecked: true
-    });
-    console.log(
-      `radio button default value is: ${this.state.defaultValueChecked}`
-    );
-  };
-
   handleSaveSelection = () => {
-    console.log(this.state.correctedElements);
+    console.log(this.props.options);
+  };
+
+  selectAll = () => {
+    console.log("slect all checkboxes");
+    this.setState({
+      allSelected: true
+    });
+  };
+
+  handleChangeOption = id => {
+    const optionToChange = this.props.optionsCheckboxes.find(
+      option => option.id === id
+    );
+    optionToChange.checked = !optionToChange.checked;
+
+    this.props.changeOption(optionToChange);
   };
 
   render() {
-    const { entries, errors, corrections } = this.props;
+    const { entries, categories, corrections, optionsCheckboxes } = this.props;
 
     return (
       <div>
@@ -88,8 +55,13 @@ class CapitalizationCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{entries.length} Entries found</li>
-            <li>{entries.length - errors.length} Title case entries found</li>
-            <li>{errors.length} without title case entries found</li>
+            <li>{categories.titleCase.length} Title case entries found</li>
+            <li>
+              {categories.sentenceCase.length} Sentence case entries found
+            </li>
+            <li>
+              {categories.caseNotFound.length} without title case entries found
+            </li>
           </ul>
 
           <button className="btn-toggle-advanced" onClick={this.handleButton}>
@@ -97,65 +69,58 @@ class CapitalizationCheck extends Component {
           </button>
         </div>
 
-        {this.state.showAdvancedSettings &&
-          entries.length > 0 && (
-            <div className="corrections-table">
-              <p>Select options to correct the errors:</p>
-              <table>
-                <tbody>
+        {this.state.showAdvancedSettings && entries.length > 0 && (
+          <div className="corrections-table">
+            <button className="btn-select-all" onClick={this.selectAll}>
+              Select all
+            </button>
+            <table>
+              <tbody>
+                <tr>
+                  <th>Current</th>
+                  <th>Title case</th>
+                  <th>Sentence case</th>
+                </tr>
+              </tbody>
+              {entries.map(entry => (
+                <tbody key={entry.id}>
                   <tr>
-                    <th>Current</th>
-                    <th>Title case</th>
-                    <th>Sentence case</th>
+                    <td
+                      className={
+                        categories.titleCase.includes(entry.id)
+                          ? "table-entry-titleCase"
+                          : categories.sentenceCase.includes(entry.id)
+                          ? "table-entry-sentenceCase"
+                          : "table-entry-neither"
+                      }
+                    >
+                      <input
+                        name={`radio-${entry.id}`}
+                        type="checkBox"
+                        checked={
+                          optionsCheckboxes.find(
+                            option => option.id === entry.id
+                          ).checked
+                        }
+                        onChange={() => this.handleChangeOption(entry.id)}
+                      />
+                      {entry.TITLE}
+                    </td>
+                    <td className="table-entry-titleCase">
+                      {this.getCorrectedTitleCase(entry.id).TITLE}
+                    </td>
+                    <td className="table-entry-sentenceCase">
+                      {this.getCorrectedSentenceCase(entry.id).TITLE}
+                    </td>
                   </tr>
                 </tbody>
-                {entries.map(entry => (
-                  <tbody key={entry.id}>
-                    <tr>
-                      <td className={errors.includes(entry.id) ? 'table-entry-neither' : 'table-entry-titleCase'}>
-                        <input
-                          name={`radio-${entry.id}`}
-                          type="radio"
-                          // onChange={() => this.removeCorrectedElement(entry.id)}
-                        />
-                        {entry.TITLE}
-                        {/* {entries.find(entry => entry.id === id).TITLE} */}
-                      </td>
-                      <td className="table-entry-titleCase">
-                        <input
-                          name={`radio-${entry.id}`}
-                          type="radio"
-                          // onChange={() =>
-                          //   this.addCorrectedTitleElement(
-                          //     this.getCorrectedTitleCase(entry.id)
-                          //   )
-                          // }
-                        />
-                        {this.getCorrectedTitleCase(entry.id).TITLE}
-                      </td>
-                      <td className="table-entry-sentenceCase">
-                        <input
-                          name={`radio-${entry.id}`}
-                          type="radio"
-                          // onChange={() =>
-                          //   this.addCorrectedSentencesElement(
-                          //     this.getCorrectedSentenceCase(entry.id)
-                          //   )
-                          // }
-                        />
-                        {this.getCorrectedSentenceCase(entry.id).TITLE}
-                      </td>
-                    </tr>
-                  </tbody>
-                ))}
-              </table>
-              <button onClick={this.handleSaveSelection}>
-                Accept selection
-              </button>
-              <button>Set all to title case</button>
-              <button>Set all to sentence case</button>
-            </div>
-          )}
+              ))}
+            </table>
+            <button onClick={this.handleSaveSelection}>Accept selection</button>
+            <button>Set all to title case</button>
+            <button>Set all to sentence case</button>
+          </div>
+        )}
       </div>
     );
   }
