@@ -33,8 +33,14 @@ class App extends Component {
     });
   }
 
-  getOptionsCheckboxes = entries =>
-    entries.map(entry => ({ id: entry.id, checked: true }));
+  changeAllOptions = (allSelected) => {
+    this.setState((prevState) => ({
+      optionsCheckboxes: prevState.optionsCheckboxes.map(option => {
+        option.checked = allSelected;
+        return option;
+      })
+    }));
+  }
 
   changeOptionsCheckboxes = optionToChange => {
     this.setState(prevState => ({
@@ -45,12 +51,11 @@ class App extends Component {
   };
 
   loadDataFromServer = stateServer => {
-    const options = this.getOptionsCheckboxes(stateServer.entries);
     this.setState({
       entries: stateServer.entries,
       categories: stateServer.categories,
       corrections: stateServer.corrections,
-      optionsCheckboxes: options
+      optionsCheckboxes: stateServer.entries.map(entry => ({ id: entry.id, checked: false }))
     });
   };
 
@@ -79,6 +84,7 @@ class App extends Component {
           corrections={this.state.corrections}
           optionsCheckboxes={this.state.optionsCheckboxes}
           changeOption={this.changeOptionsCheckboxes}
+          changeAllOptions={this.changeAllOptions}
         />
       </div>
     );

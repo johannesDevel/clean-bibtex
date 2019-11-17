@@ -31,10 +31,12 @@ class CapitalizationCheck extends Component {
   };
 
   selectAll = () => {
-    console.log("slect all checkboxes");
-    this.setState({
-      allSelected: true
-    });
+    const newAllSelectedState = !this.state.allSelected;
+    this.setState(prevState => ({
+      allSelected: newAllSelectedState
+    }
+    ));
+    this.props.changeAllOptions(newAllSelectedState);
   };
 
   handleChangeOption = id => {
@@ -64,15 +66,15 @@ class CapitalizationCheck extends Component {
             </li>
           </ul>
 
-          <button className="btn-toggle-advanced" onClick={this.handleButton}>
+          <button className="btn-toggle-advanced" onClick={event => this.handleButton(event)}>
             Correct errors
           </button>
         </div>
 
         {this.state.showAdvancedSettings && entries.length > 0 && (
           <div className="corrections-table">
-            <button className="btn-select-all" onClick={this.selectAll}>
-              Select all
+            <button className="btn-select-all" onClick={() => this.selectAll()}>
+              Select all/none
             </button>
             <table>
               <tbody>
@@ -116,9 +118,6 @@ class CapitalizationCheck extends Component {
                 </tbody>
               ))}
             </table>
-            <button onClick={this.handleSaveSelection}>Accept selection</button>
-            <button>Set all to title case</button>
-            <button>Set all to sentence case</button>
           </div>
         )}
       </div>
