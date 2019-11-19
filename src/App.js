@@ -33,14 +33,42 @@ class App extends Component {
     });
   }
 
-  changeAllOptions = (allSelected) => {
-    this.setState((prevState) => ({
+  getSelectedEntries = () =>
+    this.state.entries.filter(entry =>
+      this.state.optionsCheckboxes.find(
+        option => option.id === entry.id && option.checked
+      )
+    );
+
+  changeSelectedCapitalization = capitalizationType => {
+    this.setState(prevState => {
+      const changedEntries = prevState.entries.map(entry => {
+        const changedEntry = this.getSelectedEntries().find(
+          selectedEntry => selectedEntry.id === entry.id
+        );
+        if (changedEntry != null) {
+          const newTitle = prevState.corrections.capitalization.find(
+            correction =>
+              correction.entryId === entry.id &&
+              correction.correctionType === capitalizationType
+          ).TITLE;
+          return { ...entry, TITLE: newTitle };
+        } else {
+          return entry;
+        }
+      });
+      return { entries: changedEntries };
+    });
+  };
+
+  changeAllOptions = allSelected => {
+    this.setState(prevState => ({
       optionsCheckboxes: prevState.optionsCheckboxes.map(option => {
         option.checked = allSelected;
         return option;
       })
     }));
-  }
+  };
 
   changeOptionsCheckboxes = optionToChange => {
     this.setState(prevState => ({
@@ -55,7 +83,10 @@ class App extends Component {
       entries: stateServer.entries,
       categories: stateServer.categories,
       corrections: stateServer.corrections,
-      optionsCheckboxes: stateServer.entries.map(entry => ({ id: entry.id, checked: false }))
+      optionsCheckboxes: stateServer.entries.map(entry => ({
+        id: entry.id,
+        checked: false
+      }))
     });
   };
 
@@ -85,6 +116,7 @@ class App extends Component {
           optionsCheckboxes={this.state.optionsCheckboxes}
           changeOption={this.changeOptionsCheckboxes}
           changeAllOptions={this.changeAllOptions}
+          changeSelectedCapitalization={this.changeSelectedCapitalization}
         />
       </div>
     );

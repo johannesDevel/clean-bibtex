@@ -34,8 +34,7 @@ class CapitalizationCheck extends Component {
     const newAllSelectedState = !this.state.allSelected;
     this.setState(prevState => ({
       allSelected: newAllSelectedState
-    }
-    ));
+    }));
     this.props.changeAllOptions(newAllSelectedState);
   };
 
@@ -66,20 +65,34 @@ class CapitalizationCheck extends Component {
             </li>
           </ul>
 
-          <button className="btn-toggle-advanced" onClick={event => this.handleButton(event)}>
+          <button
+            className="btn-toggle-advanced"
+            onClick={event => this.handleButton(event)}
+          >
             Correct errors
           </button>
         </div>
 
         {this.state.showAdvancedSettings && entries.length > 0 && (
           <div className="corrections-table">
-            <button className="btn-select-all" onClick={() => this.selectAll()}>
-              Select all/none
+            <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('TitleCase')}>
+              Set all selected to title case
+            </button>
+            <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('SentencesCase')}>
+              Set all selected to sentence case
             </button>
             <table>
               <tbody>
                 <tr>
-                  <th>Current</th>
+                  <th>
+                    <input
+                      type="checkBox"
+                      name="select-all-checkbox"
+                      checked={this.state.allSelected}
+                      onChange={() => this.selectAll()}
+                    />
+                    Current
+                  </th>
                   <th>Title case</th>
                   <th>Sentence case</th>
                 </tr>
@@ -97,7 +110,7 @@ class CapitalizationCheck extends Component {
                       }
                     >
                       <input
-                        name={`radio-${entry.id}`}
+                        id={entry.id}
                         type="checkBox"
                         checked={
                           optionsCheckboxes.find(

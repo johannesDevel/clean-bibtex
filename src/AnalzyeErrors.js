@@ -24,6 +24,7 @@ class AnalyzeErrors extends Component {
                   optionsCheckboxes={this.props.optionsCheckboxes}
                   changeOption={this.props.changeOption}
                   changeAllOptions={this.props.changeAllOptions}
+                  changeSelectedCapitalization={this.props.changeSelectedCapitalization}
                 />
               </div>
               <div label="Author name" status={true}>
