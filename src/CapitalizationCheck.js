@@ -76,10 +76,10 @@ class CapitalizationCheck extends Component {
         {this.state.showAdvancedSettings && entries.length > 0 && (
           <div className="corrections-table">
             <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('TitleCase')}>
-              Set all selected to title case
+              Set selected entries to title case
             </button>
             <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('SentencesCase')}>
-              Set all selected to sentence case
+              Set selected entries to sentence case
             </button>
             <table>
               <tbody>

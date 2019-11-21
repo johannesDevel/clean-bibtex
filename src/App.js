@@ -29,7 +29,7 @@ class App extends Component {
   componentDidMount() {
     BibtexAPI.get().then(stateServer => {
       this.loadDataFromServer(stateServer);
-      console.log(stateServer);
+      // console.log(stateServer);
     });
   }
 
@@ -42,23 +42,58 @@ class App extends Component {
 
   changeSelectedCapitalization = capitalizationType => {
     this.setState(prevState => {
+      let changedCategories = null;
+      let changedCategoriesTitle = prevState.categories.capitalization.titleCase;
+      let changedCategoriesSentence = prevState.categories.capitalization.sentenceCase;
+      let changedCategoriesCaseNotFound = prevState.categories.capitalization.caseNotFound;
       const changedEntries = prevState.entries.map(entry => {
         const changedEntry = this.getSelectedEntries().find(
           selectedEntry => selectedEntry.id === entry.id
         );
         if (changedEntry != null) {
-          const newTitle = prevState.corrections.capitalization.find(
+          const correctionEntry = prevState.corrections.capitalization.find(
             correction =>
               correction.entryId === entry.id &&
               correction.correctionType === capitalizationType
-          ).TITLE;
+          );
+
+          if (capitalizationType === "TitleCase") {
+            changedCategoriesTitle = changedCategoriesTitle.concat(
+              correctionEntry.entryId
+            );
+            changedCategoriesSentence = changedCategoriesSentence.filter(
+              id => id !== correctionEntry.entryId
+            );
+            changedCategoriesCaseNotFound = changedCategoriesCaseNotFound.filter(
+              id => id !== correctionEntry.entryId
+            );
+          }
+          if (capitalizationType === "SentencesCase") {
+            changedCategoriesSentence = changedCategoriesSentence.concat(
+              correctionEntry.entryId
+            );
+            changedCategoriesTitle = changedCategoriesTitle.filter(
+              id => id !== correctionEntry.entryId
+            );
+            changedCategoriesCaseNotFound = changedCategoriesCaseNotFound.filter(
+              id => id !== correctionEntry.entryId
+            );
+          }
+          changedCategories = {
+            titleCase: changedCategoriesTitle,
+            sentenceCase: changedCategoriesSentence,
+            caseNotFound: changedCategoriesCaseNotFound
+          };
+          const newTitle = correctionEntry.TITLE;
           return { ...entry, TITLE: newTitle };
         } else {
           return entry;
         }
       });
-      return { entries: changedEntries };
+      console.log( { entries: changedEntries, categories: { capitalization: changedCategories } });
+      return { entries: changedEntries, categories: { capitalization: changedCategories } };
     });
+    this.changeAllOptions(false);
   };
 
   changeAllOptions = allSelected => {
