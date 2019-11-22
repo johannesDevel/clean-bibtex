@@ -32,9 +32,9 @@ class CapitalizationCheck extends Component {
 
   selectAll = () => {
     const newAllSelectedState = !this.state.allSelected;
-    this.setState(prevState => ({
+    this.setState({
       allSelected: newAllSelectedState
-    }));
+    });
     this.props.changeAllOptions(newAllSelectedState);
   };
 
@@ -45,6 +45,16 @@ class CapitalizationCheck extends Component {
     optionToChange.checked = !optionToChange.checked;
 
     this.props.changeOption(optionToChange);
+  };
+
+  changeSelected = capitalizationType => {
+    if (this.props.optionsCheckboxes.length > 0 || this.state.allSelected) {
+      console.log("checkboxes size: " + this.props.optionsCheckboxes.length);
+      this.props.changeSelectedCapitalization(capitalizationType);
+      this.setState({
+        allSelected: false
+      });
+    }
   };
 
   render() {
@@ -75,10 +85,16 @@ class CapitalizationCheck extends Component {
 
         {this.state.showAdvancedSettings && entries.length > 0 && (
           <div className="corrections-table">
-            <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('TitleCase')}>
+            <button
+              className="btn-select-all"
+              onClick={() => this.changeSelected("TitleCase")}
+            >
               Set selected entries to title case
             </button>
-            <button className="btn-select-all" onClick={() => this.props.changeSelectedCapitalization('SentencesCase')}>
+            <button
+              className="btn-select-all"
+              onClick={() => this.changeSelected("SentencesCase")}
+            >
               Set selected entries to sentence case
             </button>
             <table>

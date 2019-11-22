@@ -43,9 +43,12 @@ class App extends Component {
   changeSelectedCapitalization = capitalizationType => {
     this.setState(prevState => {
       let changedCategories = null;
-      let changedCategoriesTitle = prevState.categories.capitalization.titleCase;
-      let changedCategoriesSentence = prevState.categories.capitalization.sentenceCase;
-      let changedCategoriesCaseNotFound = prevState.categories.capitalization.caseNotFound;
+      let changedCategoriesTitle =
+        prevState.categories.capitalization.titleCase;
+      let changedCategoriesSentence =
+        prevState.categories.capitalization.sentenceCase;
+      let changedCategoriesCaseNotFound =
+        prevState.categories.capitalization.caseNotFound;
       const changedEntries = prevState.entries.map(entry => {
         const changedEntry = this.getSelectedEntries().find(
           selectedEntry => selectedEntry.id === entry.id
@@ -90,8 +93,14 @@ class App extends Component {
           return entry;
         }
       });
-      console.log( { entries: changedEntries, categories: { capitalization: changedCategories } });
-      return { entries: changedEntries, categories: { capitalization: changedCategories } };
+      console.log({
+        entries: changedEntries,
+        categories: { capitalization: changedCategories }
+      });
+      return {
+        entries: changedEntries,
+        categories: { capitalization: changedCategories }
+      };
     });
     this.changeAllOptions(false);
   };
