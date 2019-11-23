@@ -14,6 +14,16 @@ export const get = () =>
   fetch(`${api}/bibtex`, { headers })
     .then(res => res.json());
 
+export const update = body =>
+fetch(`${api}/update`, {
+  method: "POST",
+  headers: {
+    ...headers,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(body)
+}).then(res => res);
+
 export const create = body =>
   fetch(`${api}/bibtex`, {
     method: "POST",

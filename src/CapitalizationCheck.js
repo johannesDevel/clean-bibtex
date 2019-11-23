@@ -48,7 +48,10 @@ class CapitalizationCheck extends Component {
   };
 
   changeSelected = capitalizationType => {
-    if (this.props.optionsCheckboxes.length > 0 || this.state.allSelected) {
+    if (
+      this.props.optionsCheckboxes.some(option => option.checked) ||
+      this.state.allSelected
+    ) {
       console.log("checkboxes size: " + this.props.optionsCheckboxes.length);
       this.props.changeSelectedCapitalization(capitalizationType);
       this.setState({
@@ -58,7 +61,7 @@ class CapitalizationCheck extends Component {
   };
 
   render() {
-    const { entries, categories, corrections, optionsCheckboxes } = this.props;
+    const { entries, categories, optionsCheckboxes } = this.props;
 
     return (
       <div>
@@ -71,7 +74,7 @@ class CapitalizationCheck extends Component {
               {categories.sentenceCase.length} Sentence case entries found
             </li>
             <li>
-              {categories.caseNotFound.length} without title case entries found
+              {categories.caseNotFound.length} without known case found
             </li>
           </ul>
 
@@ -89,13 +92,19 @@ class CapitalizationCheck extends Component {
               className="btn-select-all"
               onClick={() => this.changeSelected("TitleCase")}
             >
-              Set selected entries to title case
+              Set selected to title case
             </button>
             <button
               className="btn-select-all"
               onClick={() => this.changeSelected("SentencesCase")}
             >
-              Set selected entries to sentence case
+              Set selected to sentence case
+            </button>
+            <button
+              className="btn-select-all"
+              onClick={() => this.changeSelected("NoCaseFound")}
+            >
+              Set selected to original case
             </button>
             <table>
               <tbody>
