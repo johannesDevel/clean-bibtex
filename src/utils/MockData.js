@@ -36,7 +36,8 @@ const mockData = {
       caseNotFound: [1]
     },
     authorName: {},
-    mandatoryFields: {}
+    missingRequiredFields: {
+    }
   },
   corrections: {
     capitalization: [

@@ -3,10 +3,8 @@ import "./App.css";
 import AppStart from "./AppStart";
 import * as BibtexAPI from "./utils/BibtexAPI";
 import AnalyzeErrors from "./AnalzyeErrors";
-import mockData from "./utils/MockData";
 
 class App extends Component {
-  // state = mockData;
   state = {
     entries: [],
     categories: {
@@ -16,7 +14,7 @@ class App extends Component {
         caseNotFound: []
       },
       authorName: {},
-      mandatoryFields: {}
+      mandatoryFields: {},
     },
     corrections: {
       capitalization: [],
@@ -29,7 +27,7 @@ class App extends Component {
   componentDidMount() {
     BibtexAPI.get().then(stateServer => {
       this.loadDataFromServer(stateServer);
-      // console.log(stateServer);
+      console.log(stateServer);
     });
   }
 

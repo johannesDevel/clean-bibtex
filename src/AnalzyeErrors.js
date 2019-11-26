@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Tabs from "./Tabs";
 import CapitalizationCheck from "./CapitalizationCheck";
+import MandatoryFieldsCheck from "./MandatoryFieldsCheck";
 
 class AnalyzeErrors extends Component {
   categories = ["Capitalization", "Author name", "Mandatory fields"];
@@ -24,14 +25,23 @@ class AnalyzeErrors extends Component {
                   optionsCheckboxes={this.props.optionsCheckboxes}
                   changeOption={this.props.changeOption}
                   changeAllOptions={this.props.changeAllOptions}
-                  changeSelectedCapitalization={this.props.changeSelectedCapitalization}
+                  changeSelectedCapitalization={
+                    this.props.changeSelectedCapitalization
+                  }
                 />
               </div>
               <div label="Author name" status={true}>
                 TODO
               </div>
-              <div label="Mandatory fields" status={true}>
-                TODO
+              <div
+                label="Mandatory fields"
+                status={
+                  this.props.entries.filter(
+                    entry => entry.missingRequiredFields.length > 0
+                  ).length === 0
+                }
+              >
+                <MandatoryFieldsCheck entries={this.props.entries} />
               </div>
             </Tabs>
           </div>
