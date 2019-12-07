@@ -3,7 +3,7 @@ import "./App.css";
 import AppStart from "./AppStart";
 import * as BibtexAPI from "./utils/BibtexAPI";
 import AnalyzeErrors from "./AnalzyeErrors";
-import MockData from './utils/MockData';
+import MockData from "./utils/MockData";
 
 class App extends Component {
   state = {
@@ -12,54 +12,76 @@ class App extends Component {
       {
         id: 1,
         author: "Milton Abramowitz and Irene A. Stegun",
-        title: "Handbook of mathematical Functions with Tables",
+        TITLE: "Handbook of mathematical Functions with Tables",
         capitalization: "caseNotFound",
         correctionTitleCase: "Handbook of Mathematical Functions With Tables",
-        correctionSentenceCase: "Handbook of mathematical functions with tables"
+        correctionSentenceCase:
+          "Handbook of mathematical functions with tables",
+        correctionNoCase: "Handbook of mathematical Functions with Tables",
+        missingRequiredFields: []
       },
       {
         id: 2,
         author: "Bex, Floris and Villata, Serena",
-        title:
+        TITLE:
           "Legal knowledge and information systems: JURIX 2016: the twenty-ninth annual conference",
-          capitalization: "sentenceCase",
-          correctionTitleCase: "Legal Knowledge and Information Systems: JURIX 2016: the Twenty-Ninth Annual Conference",
-          correctionSentenceCase: "Legal knowledge and information systems: JURIX 2016: the twenty-ninth annual conference"
+        capitalization: "sentenceCase",
+        correctionTitleCase:
+          "Legal Knowledge and Information Systems: JURIX 2016: the Twenty-Ninth Annual Conference",
+        correctionSentenceCase:
+          "Legal knowledge and information systems: JURIX 2016: the twenty-ninth annual conference",
+          correctionNoCase: "Legal knowledge and information systems: JURIX 2016: the twenty-ninth annual conference",
+        missingRequiredFields: []
       },
       {
         id: 3,
         author: "Winkels, Raboud Maarten",
-        title: "Section Structure of Dutch Court Judgments",
+        TITLE: "Section Structure of Dutch Court Judgments",
         capitalization: "titleCase",
         correctionTitleCase: "Section Structure of Dutch Court Judgments",
-        correctionSentenceCase: "section structure of dutch court judgments"
+        correctionSentenceCase: "Section structure of dutch court judgments",
+        correctionNoCase: "Section Structure of Dutch Court Judgments",
+        missingRequiredFields: []
       },
       {
         id: 4,
         author: "Trompper, Maarten and Winkels, Raboud",
-        title:
+        TITLE:
           "Automatic Assignment of Section Structure to Texts of Dutch Court Judgments",
-          capitalization: "titleCase",
-          correctionTitleCase: "Automatic Assignment of Section Structure to Texts of Dutch Court Judgments",
-          correctionSentenceCase: "Automatic assignment of section structure to texts of dutch court judgments"
+        capitalization: "titleCase",
+        correctionTitleCase:
+          "Automatic Assignment of Section Structure to Texts of Dutch Court Judgments",
+        correctionSentenceCase:
+          "Automatic assignment of section structure to texts of dutch court judgments",
+          correctionNoCase: "Automatic Assignment of Section Structure to Texts of Dutch Court Judgments",
+        missingRequiredFields: []
       },
       {
         id: 5,
         author: "Stallings, William",
-        title: "Computer Security Principles and Practice",
+        TITLE: "Computer Security Principles and Practice",
         capitalization: "caseNotFound",
         correctionTitleCase: "Computer Security Principles and Practice",
-        correctionSentenceCase: "Computer security principles and practice"
+        correctionSentenceCase: "Computer security principles and practice",
+        correctionNoCase: "Computer Security Principles and Practice",
+        missingRequiredFields: []
       }
-    ]
+    ],
+    optionsCheckboxes: []
   };
 
-  // componentDidMount() {
-  //   BibtexAPI.get().then(stateServer => {
-  //     this.loadDataFromServer(stateServer);
-  //     console.log(stateServer);
-  //   });
-  // }
+  componentDidMount() {
+    this.setState(prevState => ({
+      optionsCheckboxes: prevState.entries.map(entry => ({
+        id: entry.id,
+        checked: false
+      }))
+    }));
+    // BibtexAPI.get().then(stateServer => {
+    //   this.loadDataFromServer(stateServer);
+    //   console.log(stateServer);
+    // });
+  }
 
   getSelectedEntries = () =>
     this.state.entries.filter(entry =>
@@ -69,6 +91,32 @@ class App extends Component {
     );
 
   changeSelectedCapitalization = capitalizationType => {
+    this.setState(prevState => {
+      const newEntries = prevState.entries.map(entry => {
+        if (prevState.optionsCheckboxes.some(option => option.id === entry.id && option.checked)) {
+          const changedEntry = Object.assign({}, entry);
+          changedEntry.capitalization = capitalizationType;
+          if (capitalizationType === 'noCaseFound') {
+            changedEntry.TITLE = changedEntry.correctionNoCase;
+          }
+          else if (capitalizationType === 'titleCase') {
+            changedEntry.TITLE = changedEntry.correctionTitleCase;
+          }
+          else if (capitalizationType === 'sentenceCase'){
+            changedEntry.TITLE = changedEntry.correctionSentenceCase;
+          }
+          return changedEntry;
+        }
+        else {
+          return Object.assign({}, entry);
+        }
+        });
+        return { entries: newEntries}
+    });
+    this.changeAllOptions(false);
+  };
+
+  changeSelectedCapitalization2 = capitalizationType => {
     this.setState(
       prevState => {
         let changedCategories = null;
@@ -83,18 +131,17 @@ class App extends Component {
             selectedEntry => selectedEntry.id === entry.id
           );
           if (changedEntry != null) {
-            let correctionEntry = null
-            if (capitalizationType === 'NoCaseFound') {
-              correctionEntry = prevState.originalEntries.find(originalEntry => (
-                originalEntry.id === entry.id
-              ));
-            }
-            else {
-            correctionEntry = prevState.corrections.capitalization.find(
-              correction =>
-                correction.entryId === entry.id &&
-                correction.correctionType === capitalizationType
-            );
+            let correctionEntry = null;
+            if (capitalizationType === "NoCaseFound") {
+              correctionEntry = prevState.originalEntries.find(
+                originalEntry => originalEntry.id === entry.id
+              );
+            } else {
+              correctionEntry = prevState.corrections.capitalization.find(
+                correction =>
+                  correction.entryId === entry.id &&
+                  correction.correctionType === capitalizationType
+              );
             }
 
             if (capitalizationType === "TitleCase") {
@@ -126,9 +173,7 @@ class App extends Component {
               );
             }
             if (capitalizationType === "NoCaseFound") {
-              if (
-                !changedCategoriesCaseNotFound.includes(correctionEntry.id)
-              ) {
+              if (!changedCategoriesCaseNotFound.includes(correctionEntry.id)) {
                 changedCategoriesCaseNotFound = changedCategoriesCaseNotFound.concat(
                   correctionEntry.id
                 );
@@ -157,9 +202,9 @@ class App extends Component {
         };
       },
       () => {
-        BibtexAPI.update({ 
+        BibtexAPI.update({
           entries: this.state.entries,
-          categories: this.state.categories,
+          categories: this.state.categories
         });
         console.log(this.state);
       }
@@ -182,26 +227,26 @@ class App extends Component {
         .concat([optionToChange])
     }));
 
-  loadDataFromServer = stateServer =>
-    this.setState({
-      originalEntries: stateServer.originalEntries,
-      entries: stateServer.entries,
-      categories: stateServer.categories,
-      corrections: stateServer.corrections,
-      optionsCheckboxes: stateServer.entries.map(entry => ({
-        id: entry.id,
-        checked: false
-      }))
-    });
+  // loadDataFromServer = stateServer =>
+  //   this.setState({
+  //     originalEntries: stateServer.originalEntries,
+  //     entries: stateServer.entries,
+  //     categories: stateServer.categories,
+  //     corrections: stateServer.corrections,
+  //     optionsCheckboxes: stateServer.entries.map(entry => ({
+  //       id: entry.id,
+  //       checked: false
+  //     }))
+  //   });
 
-  onSetBibtexText = textInput => {
-    const textInputObject = { bibtexText: textInput };
-    BibtexAPI.create(textInputObject).then(() => (
-      BibtexAPI.get().then(stateServer => (
-        this.loadDataFromServer(stateServer)
-    ))
-    ));
-  };
+  // onSetBibtexText = textInput => {
+  //   const textInputObject = { bibtexText: textInput };
+  //   BibtexAPI.create(textInputObject).then(() => (
+  //     BibtexAPI.get().then(stateServer => (
+  //       this.loadDataFromServer(stateServer)
+  //   ))
+  //   ));
+  // };
 
   render() {
     return (
@@ -214,8 +259,6 @@ class App extends Component {
         <AppStart setBibtex={this.onSetBibtexText} />
         <AnalyzeErrors
           entries={this.state.entries}
-          categories={this.state.categories}
-          corrections={this.state.corrections}
           optionsCheckboxes={this.state.optionsCheckboxes}
           changeOption={this.changeOptionsCheckboxes}
           changeAllOptions={this.changeAllOptions}

@@ -7,19 +7,6 @@ class CapitalizationCheck extends Component {
     allSelected: false
   };
 
-  getCorrectedTitleCase = id =>
-    this.props.corrections.find(
-      correction =>
-        correction.entryId === id && correction.correctionType === "TitleCase"
-    );
-
-  getCorrectedSentenceCase = id =>
-    this.props.corrections.find(
-      correction =>
-        correction.entryId === id &&
-        correction.correctionType === "SentencesCase"
-    );
-
   handleButton = () => {
     this.setState(prevState => ({
       showAdvancedSettings: !prevState.showAdvancedSettings
@@ -61,7 +48,7 @@ class CapitalizationCheck extends Component {
   };
 
   render() {
-    const { entries, categories, optionsCheckboxes } = this.props;
+    const { entries, optionsCheckboxes } = this.props;
 
     return (
       <div>
@@ -69,13 +56,13 @@ class CapitalizationCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{entries.length} Entries found</li>
-            <li>{categories.titleCase.length} Title case entries found</li>
+            {/* <li>{categories.titleCase.length} Title case entries found</li>
             <li>
               {categories.sentenceCase.length} Sentence case entries found
             </li>
             <li>
               {categories.caseNotFound.length} without known case found
-            </li>
+            </li> */}
           </ul>
 
           <button
@@ -90,19 +77,19 @@ class CapitalizationCheck extends Component {
           <div className="corrections-table">
             <button
               className="btn-select-all"
-              onClick={() => this.changeSelected("TitleCase")}
+              onClick={() => this.changeSelected("titleCase")}
             >
               Set selected to title case
             </button>
             <button
               className="btn-select-all"
-              onClick={() => this.changeSelected("SentencesCase")}
+              onClick={() => this.changeSelected("sentenceCase")}
             >
               Set selected to sentence case
             </button>
             <button
               className="btn-select-all"
-              onClick={() => this.changeSelected("NoCaseFound")}
+              onClick={() => this.changeSelected("noCaseFound")}
             >
               Set selected to initial case
             </button>
@@ -127,11 +114,11 @@ class CapitalizationCheck extends Component {
                   <tr>
                     <td
                       className={
-                        categories.titleCase.includes(entry.id)
-                          ? "table-entry-titleCase"
-                          : categories.sentenceCase.includes(entry.id)
-                          ? "table-entry-sentenceCase"
-                          : "table-entry-neither"
+                        entry.capitalization === 'titleCase'
+                        ? "table-entry-titleCase"
+                        : entry.capitalization === 'sentenceCase'
+                        ? "table-entry-sentenceCase"
+                        : "table-entry-neither"
                       }
                     >
                       <input
@@ -147,10 +134,10 @@ class CapitalizationCheck extends Component {
                       {entry.TITLE}
                     </td>
                     <td className="table-entry-titleCase">
-                      {this.getCorrectedTitleCase(entry.id).TITLE}
+                      {entry.correctionTitleCase}
                     </td>
                     <td className="table-entry-sentenceCase">
-                      {this.getCorrectedSentenceCase(entry.id).TITLE}
+                      {entry.correctionSentenceCase}
                     </td>
                   </tr>
                 </tbody>

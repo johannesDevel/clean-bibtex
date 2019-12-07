@@ -15,13 +15,12 @@ class AnalyzeErrors extends Component {
               <div
                 label="Capitalization"
                 status={
-                  this.props.categories.capitalization.caseNotFound.length === 0
+                  true
+                  // this.props.categories.capitalization.caseNotFound.length === 0
                 }
               >
                 <CapitalizationCheck
-                  categories={this.props.categories.capitalization}
                   entries={this.props.entries}
-                  corrections={this.props.corrections.capitalization}
                   optionsCheckboxes={this.props.optionsCheckboxes}
                   changeOption={this.props.changeOption}
                   changeAllOptions={this.props.changeAllOptions}
@@ -36,9 +35,10 @@ class AnalyzeErrors extends Component {
               <div
                 label="Mandatory fields"
                 status={
-                  this.props.entries.filter(
-                    entry => entry.missingRequiredFields.length > 0
-                  ).length === 0
+                  true
+                  // this.props.entries.filter(
+                  //   entry => entry.missingRequiredFields.length > 0
+                  // ).length === 0
                 }
               >
                 <MandatoryFieldsCheck entries={this.props.entries} />
