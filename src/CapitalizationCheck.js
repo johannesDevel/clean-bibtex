@@ -39,12 +39,27 @@ class CapitalizationCheck extends Component {
       this.props.optionsCheckboxes.some(option => option.checked) ||
       this.state.allSelected
     ) {
-      console.log("checkboxes size: " + this.props.optionsCheckboxes.length);
       this.props.changeSelectedCapitalization(capitalizationType);
       this.setState({
         allSelected: false
       });
     }
+  };
+
+  getCaseSum = () => {
+    let titleSum = 0;
+    let sentenceSum = 0;
+    let noCaseSum = 0;
+    this.props.entries.forEach(entry => {
+      if (entry.capitalization === "titleCase") titleSum++;
+      else if (entry.capitalization === "sentenceCase") sentenceSum++;
+      else noCaseSum++;
+    });
+    return {
+      titleCaseSum: titleSum,
+      sentenceCaseSum: sentenceSum,
+      noCaseSum: noCaseSum
+    };
   };
 
   render() {
@@ -56,13 +71,11 @@ class CapitalizationCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{entries.length} Entries found</li>
-            {/* <li>{categories.titleCase.length} Title case entries found</li>
+            <li>{this.getCaseSum().titleCaseSum} Title case entries found</li>
             <li>
-              {categories.sentenceCase.length} Sentence case entries found
+              {this.getCaseSum().sentenceCaseSum} Sentence case entries found
             </li>
-            <li>
-              {categories.caseNotFound.length} without known case found
-            </li> */}
+            <li>{this.getCaseSum().noCaseSum} without known case found</li>
           </ul>
 
           <button
@@ -114,11 +127,11 @@ class CapitalizationCheck extends Component {
                   <tr>
                     <td
                       className={
-                        entry.capitalization === 'titleCase'
-                        ? "table-entry-titleCase"
-                        : entry.capitalization === 'sentenceCase'
-                        ? "table-entry-sentenceCase"
-                        : "table-entry-neither"
+                        entry.capitalization === "titleCase"
+                          ? "table-entry-titleCase"
+                          : entry.capitalization === "sentenceCase"
+                          ? "table-entry-sentenceCase"
+                          : "table-entry-neither"
                       }
                     >
                       <input
