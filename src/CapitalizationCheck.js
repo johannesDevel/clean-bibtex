@@ -47,19 +47,18 @@ class CapitalizationCheck extends Component {
   };
 
   getCaseSum = () => {
-    let titleSum = 0;
-    let sentenceSum = 0;
-    let noCaseSum = 0;
-    this.props.entries.forEach(entry => {
-      if (entry.capitalization === "titleCase") titleSum++;
-      else if (entry.capitalization === "sentenceCase") sentenceSum++;
-      else noCaseSum++;
-    });
-    return {
-      titleCaseSum: titleSum,
-      sentenceCaseSum: sentenceSum,
-      noCaseSum: noCaseSum
+    const caseSum = {
+      titleCaseSum: 0,
+      sentenceCaseSum: 0,
+      noCaseSum: 0
     };
+    this.props.entries.forEach(entry => {
+      if (entry.capitalization === "titleCase") caseSum.titleCaseSum++;
+      else if (entry.capitalization === "sentenceCase")
+        caseSum.sentenceCaseSum++;
+      else caseSum.noCaseSum++;
+    });
+    return caseSum;
   };
 
   render() {
@@ -71,11 +70,17 @@ class CapitalizationCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{entries.length} Entries found</li>
-            <li>{this.getCaseSum().titleCaseSum} Title case entries found</li>
-            <li>
-              {this.getCaseSum().sentenceCaseSum} Sentence case entries found
-            </li>
-            <li>{this.getCaseSum().noCaseSum} without known case found</li>
+            {this.getCaseSum().titleCaseSum > 0 && (
+              <li>{this.getCaseSum().titleCaseSum} Title case entries found</li>
+            )}
+            {this.getCaseSum().sentenceCaseSum > 0 && (
+              <li>
+                {this.getCaseSum().sentenceCaseSum} Sentence case entries found
+              </li>
+            )}
+            {this.getCaseSum().noCaseSum > 0 && (
+              <li>{this.getCaseSum().noCaseSum} without known case found</li>
+            )}
           </ul>
 
           <button
