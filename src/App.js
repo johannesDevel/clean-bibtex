@@ -3,7 +3,6 @@ import "./App.css";
 import AppStart from "./AppStart";
 import * as BibtexAPI from "./utils/BibtexAPI";
 import AnalyzeErrors from "./AnalzyeErrors";
-import MockData from "./utils/MockData";
 
 class App extends Component {
   state = {
