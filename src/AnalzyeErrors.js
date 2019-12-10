@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Tabs from "./Tabs";
 import CapitalizationCheck from "./CapitalizationCheck";
 import MandatoryFieldsCheck from "./MandatoryFieldsCheck";
+import AuthorNameCheck from "./AuthorNameCheck";
 
 class AnalyzeErrors extends Component {
   categories = ["Capitalization", "Author name", "Mandatory fields"];
@@ -31,7 +32,9 @@ class AnalyzeErrors extends Component {
                 />
               </div>
               <div label="Author name" status={true}>
-                TODO
+                <AuthorNameCheck
+                  entries={this.props.entries}
+                />
               </div>
               <div
                 label="Mandatory fields"
