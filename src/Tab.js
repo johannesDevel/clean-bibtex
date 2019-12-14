@@ -22,7 +22,7 @@ class Tab extends Component {
 
     return (
       <li className={className} onClick={onClick}>
-        {`${label} - ${status ? 'ok' : 'error found'}`}
+        {`${label} - ${status ? 'ok' : 'inconsistencies found'}`}
       </li>
     );
   }
