@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import * as BibtexAPI from "./utils/BibtexAPI";
 
 class AuthorNameCheck extends Component {
   state = {};
@@ -23,12 +24,15 @@ class AuthorNameCheck extends Component {
         </div>
         {this.getAbbreviatedAuthorSum() > 0 && (
           <div className="corrections-table">
+            <button onClick={() => BibtexAPI.searchAuthor()}>
+              Search Author
+            </button>
             <table>
               <tbody>
                 <tr>
                   <th>Error</th>
                   <th>Current Author name</th>
-                  <th>Corrected Author name</th>
+                  <th>Title</th>
                 </tr>
               </tbody>
               {entries
@@ -36,11 +40,20 @@ class AuthorNameCheck extends Component {
                 .map(entry => (
                   <tbody key={entry.id}>
                     <tr>
+                      <td>{entry.authorAbbreviation && "abbreviated"}</td>
                       <td>
-                        {entry.authorAbbreviation && "abbreviated author name"}
+                        <input
+                          id={entry.id}
+                          type="checkBox"
+                          onChange={() => console.log()}
+                        />
+                        {entry.AUTHOR.map(author => (
+                          <div>
+                            {`${author.lastName} - ${author.firstName}`}
+                          </div>
+                        ))}
                       </td>
-                      <td>{entry.AUTHOR}</td>
-                      <td></td>
+                      <td>{entry.TITLE}</td>
                     </tr>
                   </tbody>
                 ))}
