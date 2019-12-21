@@ -4,12 +4,14 @@ import * as BibtexAPI from "./utils/BibtexAPI";
 class AuthorNameCheck extends Component {
   state = {};
 
-  getAbbreviatedAuthorSum = () =>
-    this.props.entries.filter(entry => entry.authorAbbreviation).length;
+  getInconsistentAuthorEntries = () =>
+    this.props.entries.filter(
+      entry =>
+        entry.AUTHOR != null &&
+        entry.AUTHOR.some(author => author.abbreviated || author.misspelling)
+    );
 
   render() {
-    const { entries } = this.props;
-
     return (
       <div>
         <div className="statistic">
@@ -17,46 +19,56 @@ class AuthorNameCheck extends Component {
           <ul>
             <li>{this.props.entries.length} entries found</li>
             <li>
-              {this.getAbbreviatedAuthorSum()} entries with abbreviated author
-              names found
+              {this.getInconsistentAuthorEntries().length} entries with
+              inconsistent author names found
             </li>
           </ul>
         </div>
-        {this.getAbbreviatedAuthorSum() > 0 && (
+        {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
             <button onClick={() => BibtexAPI.searchAuthor()}>
               Search Author
             </button>
-            <table>
+            <table border="1">
               <tbody>
                 <tr>
-                  <th>Error</th>
-                  <th>Current Author name</th>
-                  <th>Title</th>
+                  <th>Current Author Name</th>
+                  <th>Author Name Suggestion</th>
+                  <th>Entry Title</th>
                 </tr>
               </tbody>
-              {entries
-                .filter(entry => entry.authorAbbreviation)
-                .map(entry => (
-                  <tbody key={entry.id}>
-                    <tr>
-                      <td>{entry.authorAbbreviation && "abbreviated"}</td>
-                      <td>
-                        <input
-                          id={entry.id}
-                          type="checkBox"
-                          onChange={() => console.log()}
-                        />
-                        {entry.AUTHOR.map(author => (
-                          <div>
-                            {`${author.lastName} - ${author.firstName}`}
-                          </div>
-                        ))}
-                      </td>
-                      <td>{entry.TITLE}</td>
-                    </tr>
-                  </tbody>
-                ))}
+              {this.getInconsistentAuthorEntries().map(entry => (
+                <tbody key={entry.id}>
+                  <tr>
+                    <td>
+                      {entry.AUTHOR.filter(
+                        author => author.abbreviated || author.misspelling
+                      ).map(author => (
+                        <div>
+                          <input
+                            id={entry.id}
+                            type="checkBox"
+                            onChange={() => console.log()}
+                          />
+                          {author.name}
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      {entry.AUTHOR.filter(
+                        author => author.abbreviated || author.misspelling
+                      ).map(author => (
+                        <div>
+                          {author.suggestion != null
+                            ? author.suggestion
+                            : "no suggestion found"}
+                        </div>
+                      ))}
+                    </td>
+                    <td>{entry.TITLE}</td>
+                  </tr>
+                </tbody>
+              ))}
             </table>
           </div>
         )}

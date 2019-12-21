@@ -31,12 +31,19 @@ class AnalyzeErrors extends Component {
                   }
                 />
               </div>
-              <div label="Author name" status={
-                this.props.entries.filter(entry => entry.authorAbbreviation).length === 0
-              }>
-                <AuthorNameCheck
-                  entries={this.props.entries}
-                />
+              <div
+                label="Author name"
+                status={
+                  this.props.entries.filter(
+                    entry =>
+                      entry.AUTHOR != null &&
+                      entry.AUTHOR.some(
+                        author => author.abbreviated || author.misspelling
+                      )
+                  ).length === 0
+                }
+              >
+                <AuthorNameCheck entries={this.props.entries} />
               </div>
               <div
                 label="Mandatory fields"
