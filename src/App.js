@@ -12,17 +12,23 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.setState(prevState => ({
-      optionsCheckboxes: prevState.entries.map(entry => ({
-        id: entry.id,
-        checked: false
-      }))
-    }));
+    this.setState(
+      prevState => ({
+        optionsCheckboxes: prevState.entries.map(entry => ({
+          id: entry.id,
+          checked: false
+        }))
+      }),
+      this.getEntriesFromServer()
+    );
+  }
+
+  getEntriesFromServer = () => {
     BibtexAPI.get().then(stateServer => {
       this.loadDataFromServer(stateServer);
       console.log(stateServer);
     });
-  }
+  };
 
   getSelectedEntries = () =>
     this.state.entries.filter(entry =>
@@ -41,12 +47,14 @@ class App extends Component {
             )
           ) {
             const changedEntry = Object.assign({}, entry);
-            changedEntry.capitalization = capitalizationType;
-            if (capitalizationType === "noCaseFound") {
-              changedEntry.TITLE = changedEntry.correctionNoCase;
+            if (capitalizationType === "initialCase") {
+              changedEntry.capitalization = changedEntry.initialCapitalization;
+              changedEntry.TITLE = changedEntry.correctionInitialCase;
             } else if (capitalizationType === "titleCase") {
+              changedEntry.capitalization = "titleCase";
               changedEntry.TITLE = changedEntry.correctionTitleCase;
             } else if (capitalizationType === "sentenceCase") {
+              changedEntry.capitalization = "sentenceCase";
               changedEntry.TITLE = changedEntry.correctionSentenceCase;
             }
             return changedEntry;
@@ -97,6 +105,41 @@ class App extends Component {
     );
   };
 
+  changeAuthorName = (entryId, authorName) => {
+    this.setState(prevState => {
+      const newEnries = prevState.entries.map(entry => {
+        if (entry.AUTHOR != null && entry.id === entryId) {
+          const newEntry = Object.assign({}, entry);
+          const newEntryAuthor = newEntry.AUTHOR.map(author => {
+            if (
+              author.name === authorName &&
+              author.suggestion != null &&
+              author.suggestion.length > 0
+            ) {
+              const newAuthor = Object.assign({}, author);
+              newAuthor.name = newAuthor.suggestion[0];
+              newAuthor.abbreviated = false;
+              return newAuthor;
+            } else {
+              return Object.assign({}, author);
+            }
+          });
+          newEntry.AUTHOR = newEntryAuthor;
+          return newEntry;
+        } else {
+          return Object.assign({}, entry);
+        }
+      });
+      return { entries: newEnries };
+    },
+    () => {
+      BibtexAPI.update({
+        entries: this.state.entries
+      });
+      console.log(this.state);
+    });
+  };
+
   render() {
     return (
       <div className="App">
@@ -112,6 +155,8 @@ class App extends Component {
           changeOption={this.changeOptionsCheckboxes}
           changeAllOptions={this.changeAllOptions}
           changeSelectedCapitalization={this.changeSelectedCapitalization}
+          getEntriesFromServer={this.getEntriesFromServer}
+          changeAuthorName={this.changeAuthorName}
         />
       </div>
     );

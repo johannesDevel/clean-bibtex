@@ -107,7 +107,7 @@ class CapitalizationCheck extends Component {
             </button>
             <button
               className="btn-select-all"
-              onClick={() => this.changeSelected("noCaseFound")}
+              onClick={() => this.changeSelected("initialCase")}
             >
               Set selected to initial case
             </button>

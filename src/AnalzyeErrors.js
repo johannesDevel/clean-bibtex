@@ -43,7 +43,11 @@ class AnalyzeErrors extends Component {
                   ).length === 0
                 }
               >
-                <AuthorNameCheck entries={this.props.entries} />
+                <AuthorNameCheck 
+                entries={this.props.entries}
+                getEntriesFromServer={this.props.getEntriesFromServer}
+                changeAuthorName={this.props.changeAuthorName}
+                />
               </div>
               <div
                 label="Mandatory fields"

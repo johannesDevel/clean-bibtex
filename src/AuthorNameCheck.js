@@ -2,7 +2,31 @@ import React, { Component } from "react";
 import * as BibtexAPI from "./utils/BibtexAPI";
 
 class AuthorNameCheck extends Component {
-  state = {};
+  state = {
+    options: []
+  };
+
+  componentDidMount() {
+    this.searchSuggestions();
+  }
+
+  setAuthorSuggestionOptions = () => {
+    this.setState(() => {
+      const options = this.getInconsistentAuthorEntries().flatMap(entry =>
+        entry.AUTHOR.filter(
+          author => author.abbreviated || author.misspelling
+        ).map(author => ({
+          entryId: entry.id,
+          author: author.name,
+          suggestion: author.suggestion,
+          checked: false
+        }))
+      );
+      return {
+        options: options
+      };
+    });
+  }
 
   getInconsistentAuthorEntries = () =>
     this.props.entries.filter(
@@ -10,6 +34,51 @@ class AuthorNameCheck extends Component {
         entry.AUTHOR != null &&
         entry.AUTHOR.some(author => author.abbreviated || author.misspelling)
     );
+
+  searchSuggestions = () => {
+    // this.setAuthorSuggestionOptions();
+    BibtexAPI.searchAuthor().then(() => {
+      this.props.getEntriesFromServer();
+      this.setAuthorSuggestionOptions();
+    });
+  };
+
+  changeAuthorName = () => {
+    console.log(this.state);
+    this.state.options.filter(option => option.checked).forEach(option => {
+      // if (option.suggestion != null && option.suggestion.length > 0){
+        this.props.changeAuthorName(option.entryId, option.author);
+      // }
+    })
+  };
+
+  getChecked = authorName => {
+    const checkedOption = this.state.options.find(
+      option => option != null && option.author === authorName
+    );
+    if (checkedOption != null) {
+      return checkedOption.checked;
+    } else {
+      return false;
+    }
+  };
+
+  changeOption = authorName => {
+    this.setState(() => {
+      const newOptions = this.state.options.map(option => {
+        if (option.author === authorName) {
+          return {
+            entryId: option.entryId,
+            author: authorName,
+            checked: !option.checked
+          };
+        } else {
+          return Object.assign({}, option);
+        }
+      });
+      return { options: newOptions };
+    });
+  };
 
   render() {
     return (
@@ -26,8 +95,11 @@ class AuthorNameCheck extends Component {
         </div>
         {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
-            <button onClick={() => BibtexAPI.searchAuthor()}>
-              Search Author
+            <button onClick={() => this.searchSuggestions()}>
+              Search author suggestion
+            </button>
+            <button onClick={() => this.changeAuthorName()}>
+              change author name to suggestion
             </button>
             <table border="1">
               <tbody>
@@ -39,34 +111,27 @@ class AuthorNameCheck extends Component {
               </tbody>
               {this.getInconsistentAuthorEntries().map(entry => (
                 <tbody key={entry.id}>
-                  <tr>
-                    <td>
-                      {entry.AUTHOR.filter(
-                        author => author.abbreviated || author.misspelling
-                      ).map(author => (
-                        <div>
-                          <input
-                            id={entry.id}
-                            type="checkBox"
-                            onChange={() => console.log()}
-                          />
-                          {author.name}
-                        </div>
-                      ))}
-                    </td>
-                    <td>
-                      {entry.AUTHOR.filter(
-                        author => author.abbreviated || author.misspelling
-                      ).map(author => (
-                        <div>
-                          {author.suggestion != null
-                            ? author.suggestion
-                            : "no suggestion found"}
-                        </div>
-                      ))}
-                    </td>
-                    <td>{entry.TITLE}</td>
-                  </tr>
+                  {entry.AUTHOR.filter(
+                    author => author.abbreviated || author.misspelling
+                  ).map(author => (
+                    <tr key={author.name}>
+                      <td>
+                        <input
+                          type="checkBox"
+                          checked={this.getChecked(author.name)}
+                          onChange={() => this.changeOption(author.name)}
+                        />
+                        {author.name}
+                      </td>
+                      <td>
+                        {author.suggestion != null &&
+                        author.suggestion.length > 0
+                          ? author.suggestion[0]
+                          : "no suggestion found"}
+                      </td>
+                      <td>{entry.TITLE}</td>
+                    </tr>
+                  ))}
                 </tbody>
               ))}
             </table>

@@ -36,4 +36,3 @@ export const create = body =>
 
 export const searchAuthor = () =>
   fetch(`${api}/correctedAuthor`, { headers })
-    .then(res => res.json());
