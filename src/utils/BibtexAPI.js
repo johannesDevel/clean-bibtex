@@ -1,4 +1,5 @@
 const api = "http://127.0.0.1:5000";
+const crossrefApi = 'https://api.crossref.org';
 
 let token = localStorage.token;
 
@@ -15,7 +16,7 @@ export const get = () =>
     .then(res => res.json());
 
 export const update = body =>
-fetch(`${api}/update`, {
+  fetch(`${api}/update`, {
   method: "POST",
   headers: {
     ...headers,
@@ -34,5 +35,9 @@ export const create = body =>
     body: JSON.stringify(body)
   }).then(res => res.json());
 
-export const searchAuthor = () =>
-  fetch(`${api}/correctedAuthor`, { headers })
+// export const searchAuthor = () =>
+//   fetch(`${api}/correctedAuthor`, { headers })
+
+export const searchAuthor = (title, author) =>
+  fetch(`${crossrefApi}/works?query.bibliographic=${title}&query.author=${author}&rows=1`)
+    .then(res => res.json());

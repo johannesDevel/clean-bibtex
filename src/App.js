@@ -26,7 +26,6 @@ class App extends Component {
   getEntriesFromServer = () => {
     BibtexAPI.get().then(stateServer => {
       this.loadDataFromServer(stateServer);
-      console.log(stateServer);
     });
   };
 
@@ -68,7 +67,6 @@ class App extends Component {
         BibtexAPI.update({
           entries: this.state.entries
         });
-        console.log(this.state);
       }
     );
     this.changeAllOptions(false);
@@ -106,37 +104,96 @@ class App extends Component {
   };
 
   changeAuthorName = (entryId, authorName) => {
-    this.setState(prevState => {
-      const newEnries = prevState.entries.map(entry => {
-        if (entry.AUTHOR != null && entry.id === entryId) {
-          const newEntry = Object.assign({}, entry);
-          const newEntryAuthor = newEntry.AUTHOR.map(author => {
-            if (
-              author.name === authorName &&
-              author.suggestion != null &&
-              author.suggestion.length > 0
-            ) {
-              const newAuthor = Object.assign({}, author);
-              newAuthor.name = newAuthor.suggestion[0];
-              newAuthor.abbreviated = false;
-              return newAuthor;
-            } else {
-              return Object.assign({}, author);
-            }
-          });
-          newEntry.AUTHOR = newEntryAuthor;
-          return newEntry;
-        } else {
-          return Object.assign({}, entry);
+    this.setState(
+      prevState => {
+        const newEnries = prevState.entries.map(entry => {
+          if (entry.AUTHOR != null && entry.id === entryId) {
+            const newEntry = Object.assign({}, entry);
+            const newEntryAuthor = newEntry.AUTHOR.map(author => {
+              if (
+                author.name === authorName &&
+                author.suggestion != null &&
+                author.suggestion.length > 0
+              ) {
+                const newAuthor = Object.assign({}, author);
+                newAuthor.name = newAuthor.suggestion[0];
+                newAuthor.abbreviated = false;
+                return newAuthor;
+              } else {
+                return Object.assign({}, author);
+              }
+            });
+            newEntry.AUTHOR = newEntryAuthor;
+            return newEntry;
+          } else {
+            return Object.assign({}, entry);
+          }
+        });
+        return { entries: newEnries };
+      },
+      () => {
+        BibtexAPI.update({
+          entries: this.state.entries
+        });
+      }
+    );
+  };
+
+  changeAuthorSuggestion = options => {
+    options.forEach(option => {
+      this.searchAuthorSuggestion(option.title, option.author).then(
+        foundAuthorSuggestion => {
+          console.log(foundAuthorSuggestion);
+          if (foundAuthorSuggestion != null) {
+            this.setState(
+              prevState => {
+                const changedEntries = prevState.entries.map(entry => {
+                  if (entry.id === option.entryId) {
+                    const changedAuthors = entry.AUTHOR.map(author => {
+                      if (author.name === option.author) {
+                        const changedAuthor = Object.assign({}, author);
+                        changedAuthor.suggestion.unshift(foundAuthorSuggestion);
+                        console.log(changedAuthor);
+                        return changedAuthor;
+                      } else return author;
+                    });
+                    entry.AUTHOR = changedAuthors;
+                    return entry;
+                  } else return entry;
+                });
+                return { entries: changedEntries };
+              },
+              () => {
+                BibtexAPI.update({
+                  entries: this.state.entries
+                });
+              }
+            );
+          }
         }
-      });
-      return { entries: newEnries };
-    },
-    () => {
-      BibtexAPI.update({
-        entries: this.state.entries
-      });
-      console.log(this.state);
+      );
+    });
+  };
+
+  searchAuthorSuggestion = (title, author) => {
+    return BibtexAPI.searchAuthor(
+      title.replace(/[\s]+/g, "+"),
+      author.replace(/[\s]+/g, "+")
+    ).then(result => {
+      if (
+        result != null &&
+        result.message != null &&
+        result.message.items.length > 0 &&
+        result.message.items[0].author != null
+      ) {
+        const foundAuthor = result.message.items[0].author.find(itemAuthor =>
+          author.startsWith(itemAuthor.family)
+        );
+        if (foundAuthor != null) {
+          // console.log(foundAuthor);
+          return `${foundAuthor.family}, ${foundAuthor.given}`;
+        } else return null;
+      } else return null;
     });
   };
 
@@ -157,6 +214,7 @@ class App extends Component {
           changeSelectedCapitalization={this.changeSelectedCapitalization}
           getEntriesFromServer={this.getEntriesFromServer}
           changeAuthorName={this.changeAuthorName}
+          changeAuthorSuggestion={this.changeAuthorSuggestion}
         />
       </div>
     );

@@ -5,8 +5,6 @@ import MandatoryFieldsCheck from "./MandatoryFieldsCheck";
 import AuthorNameCheck from "./AuthorNameCheck";
 
 class AnalyzeErrors extends Component {
-  categories = ["Capitalization", "Author name", "Mandatory fields"];
-
   render() {
     return (
       <div className="start-wrapper">
@@ -47,6 +45,7 @@ class AnalyzeErrors extends Component {
                 entries={this.props.entries}
                 getEntriesFromServer={this.props.getEntriesFromServer}
                 changeAuthorName={this.props.changeAuthorName}
+                changeAuthorSuggestion={this.props.changeAuthorSuggestion}
                 />
               </div>
               <div

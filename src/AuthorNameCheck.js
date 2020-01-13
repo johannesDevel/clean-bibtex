@@ -7,7 +7,7 @@ class AuthorNameCheck extends Component {
   };
 
   componentDidMount() {
-    this.searchSuggestions();
+    this.setAuthorSuggestionOptions();
   }
 
   setAuthorSuggestionOptions = () => {
@@ -17,6 +17,7 @@ class AuthorNameCheck extends Component {
           author => author.abbreviated || author.misspelling
         ).map(author => ({
           entryId: entry.id,
+          title: entry.TITLE,
           author: author.name,
           suggestion: author.suggestion,
           checked: false
@@ -26,7 +27,7 @@ class AuthorNameCheck extends Component {
         options: options
       };
     });
-  }
+  };
 
   getInconsistentAuthorEntries = () =>
     this.props.entries.filter(
@@ -36,20 +37,51 @@ class AuthorNameCheck extends Component {
     );
 
   searchSuggestions = () => {
-    // this.setAuthorSuggestionOptions();
-    BibtexAPI.searchAuthor().then(() => {
-      this.props.getEntriesFromServer();
-      this.setAuthorSuggestionOptions();
-    });
+    // console.log(this.state.options.filter(option => option.checked));
+    this.props.changeAuthorSuggestion(this.state.options.filter(option => option.checked));
+
+    // this.setState(() => {
+    //   const changedOptions = this.state.options.map(option => {
+    //     console.log(option);
+    //     if (option.checked) {
+    //       return BibtexAPI.searchAuthor(
+    //         option.title.replace(/[\s]+/g, "+"),
+    //         option.author.replace(/[\s]+/g, "+")
+    //       )
+    //         .then(result => {
+    //           if (
+    //             result != null &&
+    //             result.message != null &&
+    //             result.message.items.length > 0
+    //           ) {
+    //             const firstItem = result.message.items[0];
+    //             const foundAuthor = firstItem.author.find(itemAuthor =>
+    //               option.author.startsWith(itemAuthor.family)
+    //             );
+    //             if (foundAuthor != null) {
+    //               console.log(foundAuthor);
+    //               const changedOption = Object.assign({}, option);
+    //               const name = `${foundAuthor.family}, ${foundAuthor.given}`;
+    //               changedOption.suggestion = [name];
+    //             } else return option;
+    //           } else return option;
+    //         })
+    //         .catch(() => option);
+    //     } else return option;
+    //   });
+    //   return { options: changedOptions };
+    // });
   };
 
   changeAuthorName = () => {
     console.log(this.state);
-    this.state.options.filter(option => option.checked).forEach(option => {
-      // if (option.suggestion != null && option.suggestion.length > 0){
+    this.state.options
+      .filter(option => option.checked)
+      .forEach(option => {
+        // if (option.suggestion != null && option.suggestion.length > 0){
         this.props.changeAuthorName(option.entryId, option.author);
-      // }
-    })
+        // }
+      });
   };
 
   getChecked = authorName => {
@@ -69,7 +101,9 @@ class AuthorNameCheck extends Component {
         if (option.author === authorName) {
           return {
             entryId: option.entryId,
-            author: authorName,
+            title: option.title,
+            author: option.author,
+            suggestion: option.suggestion,
             checked: !option.checked
           };
         } else {
@@ -79,6 +113,10 @@ class AuthorNameCheck extends Component {
       return { options: newOptions };
     });
   };
+
+  showEntries = () => {
+    console.log(this.props.entries[1]);
+  }
 
   render() {
     return (
@@ -101,6 +139,7 @@ class AuthorNameCheck extends Component {
             <button onClick={() => this.changeAuthorName()}>
               change author name to suggestion
             </button>
+            <button onClick={() => this.showEntries()}>show entries</button>
             <table border="1">
               <tbody>
                 <tr>
