@@ -21,7 +21,7 @@ class AnalyzeErrors extends Component {
               >
                 <CapitalizationCheck
                   entries={this.props.entries}
-                  optionsCheckboxes={this.props.optionsCheckboxes}
+                  optionsCheckboxes={this.props.capitalizationOptions}
                   changeOption={this.props.changeOption}
                   changeAllOptions={this.props.changeAllOptions}
                   changeSelectedCapitalization={
@@ -46,6 +46,8 @@ class AnalyzeErrors extends Component {
                 getEntriesFromServer={this.props.getEntriesFromServer}
                 changeAuthorName={this.props.changeAuthorName}
                 changeAuthorSuggestion={this.props.changeAuthorSuggestion}
+                authorNameOptions={this.props.authorNameOptions}
+                changeAuthorNameOption={this.props.changeAuthorNameOption}
                 />
               </div>
               <div

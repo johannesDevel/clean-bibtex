@@ -8,20 +8,52 @@ class App extends Component {
   state = {
     bibtexText: "",
     entries: [],
-    optionsCheckboxes: []
+    capitalizationOptions: [],
+    authorNameOptions: []
   };
 
   componentDidMount() {
-    this.setState(
-      prevState => ({
-        optionsCheckboxes: prevState.entries.map(entry => ({
+    this.setState(prevState => {
+      const authorNameOptions2 = prevState.entries;
+      console.log("component did mount");
+      console.log(authorNameOptions2);
+
+      return {
+        capitalizationOptions: prevState.entries.map(entry => ({
           id: entry.id,
           checked: false
-        }))
-      }),
-      this.getEntriesFromServer()
-    );
+        })),
+        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
+      };
+    }, this.getEntriesFromServer());
   }
+
+  setInitialAuthorNameOptions = entries =>
+    entries
+      .filter(
+        entry =>
+          entry.AUTHOR != null &&
+          entry.AUTHOR.some(
+            author =>
+              author.abbreviated ||
+              author.misspelling ||
+              author.changedAbbreviation
+          )
+      )
+      .flatMap(entry =>
+        entry.AUTHOR.filter(
+          author =>
+            author.abbreviated ||
+            author.misspelling ||
+            author.changedAbbreviation
+        ).map(author => ({
+          entryId: entry.id,
+          title: entry.TITLE,
+          author: author.name,
+          suggestion: author.suggestion,
+          checked: false
+        }))
+      );
 
   getEntriesFromServer = () => {
     BibtexAPI.get().then(stateServer => {
@@ -31,7 +63,7 @@ class App extends Component {
 
   getSelectedEntries = () =>
     this.state.entries.filter(entry =>
-      this.state.optionsCheckboxes.find(
+      this.state.capitalizationOptions.find(
         option => option.id === entry.id && option.checked
       )
     );
@@ -41,7 +73,7 @@ class App extends Component {
       prevState => {
         const newEntries = prevState.entries.map(entry => {
           if (
-            prevState.optionsCheckboxes.some(
+            prevState.capitalizationOptions.some(
               option => option.id === entry.id && option.checked
             )
           ) {
@@ -74,15 +106,34 @@ class App extends Component {
 
   changeAllOptions = allSelected =>
     this.setState(prevState => ({
-      optionsCheckboxes: prevState.optionsCheckboxes.map(option => {
+      capitalizationOptions: prevState.capitalizationOptions.map(option => {
         option.checked = allSelected;
         return option;
       })
     }));
 
+  changeAuthorNameOption = authorName => {
+    this.setState(prevState => {
+      const newOptions = prevState.authorNameOptions.map(option => {
+        if (option.author === authorName) {
+          return {
+            entryId: option.entryId,
+            title: option.title,
+            author: option.author,
+            suggestion: option.suggestion,
+            checked: !option.checked
+          };
+        } else {
+          return Object.assign({}, option);
+        }
+      });
+      return { authorNameOptions: newOptions };
+    });
+  };
+
   changeOptionsCheckboxes = optionToChange =>
     this.setState(prevState => ({
-      optionsCheckboxes: prevState.optionsCheckboxes
+      capitalizationOptions: prevState.capitalizationOptions
         .filter(option => option.id !== optionToChange.id)
         .concat([optionToChange])
     }));
@@ -90,10 +141,11 @@ class App extends Component {
   loadDataFromServer = stateServer =>
     this.setState({
       entries: stateServer.entries,
-      optionsCheckboxes: stateServer.entries.map(entry => ({
+      capitalizationOptions: stateServer.entries.map(entry => ({
         id: entry.id,
         checked: false
-      }))
+      })),
+      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries)
     });
 
   onSetBibtexText = textInput => {
@@ -118,6 +170,7 @@ class App extends Component {
                 const newAuthor = Object.assign({}, author);
                 newAuthor.name = newAuthor.suggestion[0];
                 newAuthor.abbreviated = false;
+                newAuthor.changedAbbreviation = true;
                 return newAuthor;
               } else {
                 return Object.assign({}, author);
@@ -135,6 +188,9 @@ class App extends Component {
         BibtexAPI.update({
           entries: this.state.entries
         });
+        this.setState(prevState => ({
+          authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
+        }));
       }
     );
   };
@@ -173,6 +229,9 @@ class App extends Component {
         }
       );
     });
+    this.setState(prevState => ({
+      authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
+    }));
   };
 
   searchAuthorSuggestion = (title, author) => {
@@ -208,13 +267,15 @@ class App extends Component {
         <AppStart setBibtex={this.onSetBibtexText} />
         <AnalyzeErrors
           entries={this.state.entries}
-          optionsCheckboxes={this.state.optionsCheckboxes}
+          capitalizationOptions={this.state.capitalizationOptions}
           changeOption={this.changeOptionsCheckboxes}
           changeAllOptions={this.changeAllOptions}
           changeSelectedCapitalization={this.changeSelectedCapitalization}
           getEntriesFromServer={this.getEntriesFromServer}
           changeAuthorName={this.changeAuthorName}
           changeAuthorSuggestion={this.changeAuthorSuggestion}
+          authorNameOptions={this.state.authorNameOptions}
+          changeAuthorNameOption={this.changeAuthorNameOption}
         />
       </div>
     );

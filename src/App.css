@@ -140,16 +140,20 @@ table {
   /* border: 2px solid lightgrey; */
 }
 
-.table-entry-titleCase {
+.table-entry-green {
   background-color: #e2fbd8;
 }
 
-.table-entry-sentenceCase {
+.table-entry-blue {
   background-color: rgb(194, 217, 247);
 }
 
-.table-entry-neither {
+.table-entry-red {
   background-color: #fbd8d8;
+}
+
+.table-entry-grey {
+  background-color: #e7ebf4
 }
 
 .corrections-table {

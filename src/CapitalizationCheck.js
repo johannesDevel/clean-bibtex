@@ -133,10 +133,10 @@ class CapitalizationCheck extends Component {
                     <td
                       className={
                         entry.capitalization === "titleCase"
-                          ? "table-entry-titleCase"
+                          ? "table-entry-green"
                           : entry.capitalization === "sentenceCase"
-                          ? "table-entry-sentenceCase"
-                          : "table-entry-neither"
+                          ? "table-entry-blue"
+                          : "table-entry-red"
                       }
                     >
                       <input
@@ -151,10 +151,10 @@ class CapitalizationCheck extends Component {
                       />
                       {entry.TITLE}
                     </td>
-                    <td className="table-entry-titleCase">
+                    <td className="table-entry-green">
                       {entry.correctionTitleCase}
                     </td>
-                    <td className="table-entry-sentenceCase">
+                    <td className="table-entry-blue">
                       {entry.correctionSentenceCase}
                     </td>
                   </tr>
