@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import * as BibtexAPI from "./utils/BibtexAPI";
 
 class AuthorNameCheck extends Component {
+  state = {
+    allSelected: false
+  }
 
   getInconsistentAuthorEntries = () =>
     this.props.entries.filter(
@@ -53,6 +56,14 @@ class AuthorNameCheck extends Component {
     }
   };
 
+  selectAll = () => {
+    const newAllSelectedState = !this.state.allSelected;
+    this.setState(prevState => ({
+      allSelected: newAllSelectedState
+    }));
+    this.props.changeAllAuthorNameOptions(newAllSelectedState);
+  }
+
   render() {
     return (
       <div>
@@ -78,7 +89,14 @@ class AuthorNameCheck extends Component {
             <table>
               <tbody>
                 <tr>
-                  <th>Current Author Name</th>
+                  <th>
+                    <input
+                    type="checkBox"
+                    name="select-all-author-name-checkbox"
+                    checked={this.state.allSelected}
+                    onChange={() => this.selectAll()}
+                    />
+                    Current Author Name</th>
                   <th>Author Name Suggestion</th>
                   <th>Entry Title</th>
                 </tr>

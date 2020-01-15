@@ -48,6 +48,7 @@ class AnalyzeErrors extends Component {
                 changeAuthorSuggestion={this.props.changeAuthorSuggestion}
                 authorNameOptions={this.props.authorNameOptions}
                 changeAuthorNameOption={this.props.changeAuthorNameOption}
+                changeAllAuthorNameOptions={this.props.changeAllAuthorNameOptions}
                 />
               </div>
               <div

@@ -112,6 +112,14 @@ class App extends Component {
       })
     }));
 
+  changeAllAuthorNameOptions = allSelectedAuthorNameOptions =>
+    this.setState(prevState => ({
+      authorNameOptions: prevState.authorNameOptions.map(option => {
+        option.checked = allSelectedAuthorNameOptions;
+        return option;
+      })
+    }));
+
   changeAuthorNameOption = authorName => {
     this.setState(prevState => {
       const newOptions = prevState.authorNameOptions.map(option => {
@@ -276,6 +284,7 @@ class App extends Component {
           changeAuthorSuggestion={this.changeAuthorSuggestion}
           authorNameOptions={this.state.authorNameOptions}
           changeAuthorNameOption={this.changeAuthorNameOption}
+          changeAllAuthorNameOptions={this.changeAllAuthorNameOptions}
         />
       </div>
     );
