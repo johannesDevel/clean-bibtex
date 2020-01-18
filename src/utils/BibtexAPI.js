@@ -41,3 +41,7 @@ export const create = body =>
 export const searchAuthor = (title, author) =>
   fetch(`${crossrefApi}/works?query.bibliographic=${title}&query.author=${author}&rows=1`)
     .then(res => res.json());
+
+export const searchMissingField = title =>
+  fetch(`${crossrefApi}/works?query.bibliographic=${title}&rows=1`)
+      .then(res => res.json());

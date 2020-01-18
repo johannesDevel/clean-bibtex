@@ -9,23 +9,24 @@ class App extends Component {
     bibtexText: "",
     entries: [],
     capitalizationOptions: [],
-    authorNameOptions: []
+    authorNameOptions: [],
+    missingFieldsOptions: []
   };
 
   componentDidMount() {
-    this.setState(prevState => {
-      const authorNameOptions2 = prevState.entries;
-      console.log("component did mount");
-      console.log(authorNameOptions2);
-
-      return {
+    this.setState(
+      prevState => ({
         capitalizationOptions: prevState.entries.map(entry => ({
           id: entry.id,
           checked: false
         })),
-        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
-      };
-    }, this.getEntriesFromServer());
+        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries),
+        missingFieldsOptions: this.setInitialMissingFieldsOptions(
+          prevState.entries
+        )
+      }),
+      this.getEntriesFromServer()
+    );
   }
 
   setInitialAuthorNameOptions = entries =>
@@ -51,6 +52,19 @@ class App extends Component {
           title: entry.TITLE,
           author: author.name,
           suggestion: author.suggestion,
+          checked: false
+        }))
+      );
+
+  setInitialMissingFieldsOptions = entries =>
+    entries
+      .filter(entry => entry.missingRequiredFields.length > 0)
+      .flatMap(entry =>
+        entry.missingRequiredFields.map(missingField => ({
+          entryId: entry.id,
+          title: entry.TITLE,
+          field: missingField,
+          suggestion: "",
           checked: false
         }))
       );
@@ -146,6 +160,20 @@ class App extends Component {
         .concat([optionToChange])
     }));
 
+  changeMissingFieldsOption = missingFieldsOption => {
+    this.setState(prevState => {
+      const changedOptions = prevState.missingFieldsOptions.map(option => {
+        if (
+          option.entryId === missingFieldsOption.entryId &&
+          option.field === missingFieldsOption.field
+        ) {
+          return missingFieldsOption;
+        } else return option;
+      });
+      return { missingFieldsOptions: changedOptions };
+    });
+  };
+
   loadDataFromServer = stateServer =>
     this.setState({
       entries: stateServer.entries,
@@ -153,7 +181,10 @@ class App extends Component {
         id: entry.id,
         checked: false
       })),
-      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries)
+      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries),
+      missingFieldsOptions: this.setInitialMissingFieldsOptions(
+        stateServer.entries
+      )
     });
 
   onSetBibtexText = textInput => {
@@ -264,6 +295,84 @@ class App extends Component {
     });
   };
 
+  changeFieldSuggestion = () => {
+    this.state.entries
+      .filter(entry =>
+        this.state.missingFieldsOptions.some(
+          option => option.entryId === entry.id && option.checked
+        )
+      )
+      .forEach(entry =>
+        this.searchFieldSuggestion(entry.TITLE).then(result => {
+          if (
+            result.title.length > 0 &&
+            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())
+          ) {
+            console.log("title is the same");
+            this.state.missingFieldsOptions
+              .filter(option => option.entryId === entry.id && option.checked)
+              .forEach(option => {
+                if (option.field === "booktitle" &&
+                    result["container-title"] != null &&
+                    result["container-title"].length > 0
+                  ) {
+                    this.addSuggestion(entry.id,
+                      "booktitle", result["container-title"][0]);
+                } if (option.field === "year" &&
+                result.created != null 
+                ) {
+                  this.addSuggestion(entry.id,
+                    "year", result.created["date-parts"][0][0]);
+                }
+              });
+          } else {
+            console.log("title is not the same");
+          }
+        })
+      );
+  };
+
+  addSuggestion = (id, attributeName, attributeValue) => {
+    this.setState(prevState => {
+      const newOptions = prevState.missingFieldsOptions.map(option => {
+        if (option.entryId === id && option.field === attributeName) {
+          const newOption = Object.assign({}, option);
+          newOption.suggestion = attributeValue;
+          return newOption;
+        } else return option;
+      });
+      return { missingFieldsOptions: newOptions };
+    })
+  }
+
+  addAttribute = (id, attribute) => {
+    console.log(attribute);
+    this.setState(prevState => {
+      const newEntries = prevState.entries.map(entry => {
+        if (entry.id === id) {
+          const newObject = Object.assign(entry, attribute);
+          console.log(newObject);
+          return newObject;
+        } else {
+          return entry;
+        }
+      })
+      return { entries: newEntries };
+    })
+  };
+
+  searchFieldSuggestion = title =>
+    BibtexAPI.searchMissingField(title.replace(/[\s]+/g, "+")).then(result => {
+      if (
+        result != null &&
+        result.message != null &&
+        result.message.items.length > 0 &&
+        result.message.items[0] != null
+      ) {
+        return result.message.items[0];
+      } else return null;
+    });
+
   render() {
     return (
       <div className="App">
@@ -285,6 +394,9 @@ class App extends Component {
           authorNameOptions={this.state.authorNameOptions}
           changeAuthorNameOption={this.changeAuthorNameOption}
           changeAllAuthorNameOptions={this.changeAllAuthorNameOptions}
+          missingFieldsOptions={this.state.missingFieldsOptions}
+          changeMissingFieldsOption={this.changeMissingFieldsOption}
+          changeFieldSuggestion={this.changeFieldSuggestion}
         />
       </div>
     );
