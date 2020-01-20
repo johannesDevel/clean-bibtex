@@ -64,7 +64,7 @@ class App extends Component {
           entryId: entry.id,
           title: entry.TITLE,
           field: missingField,
-          suggestion: "",
+          suggestion: [],
           checked: false
         }))
       );
@@ -310,38 +310,81 @@ class App extends Component {
           ) {
             console.log("title is the same");
             this.state.missingFieldsOptions
-              .filter(option => option.entryId === entry.id && option.checked)
+              .filter(
+                option =>
+                  option.entryId === entry.id &&
+                  option.checked &&
+                  option.suggestion.length === 0
+              )
               .forEach(option => {
-                if (option.field === "booktitle" &&
-                    result["container-title"] != null &&
-                    result["container-title"].length > 0
-                  ) {
-                    this.addSuggestion(entry.id,
-                      "booktitle", result["container-title"][0]);
-                } if (option.field === "year" &&
-                result.created != null 
+                if (
+                  (option.field === "booktitle" || option.field === "journal") &&
+                  result["container-title"] != null &&
+                  result["container-title"].length > 0
                 ) {
-                  this.addSuggestion(entry.id,
-                    "year", result.created["date-parts"][0][0]);
+                  this.addSuggestion(entry.id, option.field, [
+                    result["container-title"][0]
+                  ]);
+                }
+                if (option.field === "year" && result.created != null) {
+                  this.addSuggestion(entry.id, "year", [
+                    result.created["date-parts"][0][0]
+                  ]);
+                }
+                if (
+                  option.field === "author" &&
+                  result.author != null &&
+                  result.author.length > 0
+                ) {
+                  const authors = result.author.map(
+                    author => `${author.family}, ${author.given}`
+                  );
+                  this.addSuggestion(entry.id, "author", authors);
                 }
               });
           } else {
             console.log("title is not the same");
+
           }
         })
       );
   };
 
-  addSuggestion = (id, attributeName, attributeValue) => {
-    this.setState(prevState => {
-      const newOptions = prevState.missingFieldsOptions.map(option => {
-        if (option.entryId === id && option.field === attributeName) {
-          const newOption = Object.assign({}, option);
-          newOption.suggestion = attributeValue;
-          return newOption;
-        } else return option;
+  addSuggestion = (id, attributeName, attributeValues) => {
+    attributeValues.forEach(attributeValue => {
+      this.setState(prevState => {
+        const newOptions = prevState.missingFieldsOptions.map(option => {
+          if (option.entryId === id && option.field === attributeName) {
+            const newOption = Object.assign({}, option);
+            newOption.suggestion.push(attributeValue);
+            newOption.checked = false;
+            return newOption;
+          } else return option;
+        });
+        return { missingFieldsOptions: newOptions };
       });
-      return { missingFieldsOptions: newOptions };
+    });
+
+  };
+
+  addMissingField = () => {
+
+
+    this.state.missingFieldsOptions.filter(option => option.checked && option.suggestion.length > 0)
+    .forEach(option => {
+      this.setState(prevState => {
+        const changedEntries = prevState.entries.map(entry => {
+          if (entry.id === option.entryId) {
+          const attributeName = option.field.toUpperCase();
+          return Object.assign({ [attributeName]: option.suggestion }, entry);
+          } else return entry;
+        });
+        return { entries: changedEntries };
+      },
+      () => {
+        console.log(this.state.entries);
+      }
+      )
     })
   }
 
@@ -356,9 +399,9 @@ class App extends Component {
         } else {
           return entry;
         }
-      })
+      });
       return { entries: newEntries };
-    })
+    });
   };
 
   searchFieldSuggestion = title =>
@@ -397,6 +440,7 @@ class App extends Component {
           missingFieldsOptions={this.state.missingFieldsOptions}
           changeMissingFieldsOption={this.changeMissingFieldsOption}
           changeFieldSuggestion={this.changeFieldSuggestion}
+          addMissingField={this.addMissingField}
         />
       </div>
     );

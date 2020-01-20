@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import * as BibtexAPI from "./utils/BibtexAPI";
 
 class AuthorNameCheck extends Component {
   state = {
