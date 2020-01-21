@@ -318,7 +318,8 @@ class App extends Component {
               )
               .forEach(option => {
                 if (
-                  (option.field === "booktitle" || option.field === "journal") &&
+                  (option.field === "booktitle" ||
+                    option.field === "journal") &&
                   result["container-title"] != null &&
                   result["container-title"].length > 0
                 ) {
@@ -344,7 +345,6 @@ class App extends Component {
               });
           } else {
             console.log("title is not the same");
-
           }
         })
       );
@@ -364,29 +364,39 @@ class App extends Component {
         return { missingFieldsOptions: newOptions };
       });
     });
-
   };
 
   addMissingField = () => {
-
-
-    this.state.missingFieldsOptions.filter(option => option.checked && option.suggestion.length > 0)
-    .forEach(option => {
-      this.setState(prevState => {
-        const changedEntries = prevState.entries.map(entry => {
-          if (entry.id === option.entryId) {
-          const attributeName = option.field.toUpperCase();
-          return Object.assign({ [attributeName]: option.suggestion }, entry);
-          } else return entry;
-        });
-        return { entries: changedEntries };
-      },
-      () => {
-        console.log(this.state.entries);
-      }
-      )
-    })
-  }
+    this.state.missingFieldsOptions
+      .filter(option => option.checked && option.suggestion.length > 0)
+      .forEach(option => {
+        this.setState(
+          prevState => {
+            const changedEntries = prevState.entries.map(entry => {
+              if (entry.id === option.entryId) {
+                const attributeName = option.field.toUpperCase();
+                if (option.field === "author") {
+                  const newAttribute = {
+                    AUTHOR: option.suggestion,
+                    abbreviated: false,
+                    changedAbbreviation: false
+                  };
+                  return Object.assign(entry, newAttribute);
+                } else {
+                  return Object.assign(entry, {
+                    [attributeName]: option.suggestion[0]
+                  });
+                }
+              } else return entry;
+            });
+            return { entries: changedEntries };
+          },
+          () => {
+            console.log(this.state.entries);
+          }
+        );
+      });
+  };
 
   addAttribute = (id, attribute) => {
     console.log(attribute);
