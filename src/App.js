@@ -58,13 +58,20 @@ class App extends Component {
 
   setInitialMissingFieldsOptions = entries =>
     entries
-      .filter(entry => entry.missingRequiredFields.length > 0)
+      .filter(
+        entry =>
+          entry.missingRequiredFields.length > 0 ||
+          entry.correctedRequiredFields.length > 0
+      )
       .flatMap(entry =>
         entry.missingRequiredFields.map(missingField => ({
           entryId: entry.id,
           title: entry.TITLE,
           field: missingField,
           suggestion: [],
+          corrected: entry.correctedRequiredFields.includes(missingField)
+            ? true
+            : false,
           checked: false
         }))
       );
@@ -381,11 +388,21 @@ class App extends Component {
                     abbreviated: false,
                     changedAbbreviation: false
                   };
-                  return Object.assign(entry, newAttribute);
+                  const changedEntry = Object.assign(entry, newAttribute);
+                  changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(
+                    field => field !== "author"
+                  );
+                  changedEntry.correctedRequiredFields.push("author");
+                  return changedEntry;
                 } else {
-                  return Object.assign(entry, {
+                  const changedEntry = Object.assign(entry, {
                     [attributeName]: option.suggestion[0]
                   });
+                  changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(
+                    field => field !== option.field
+                  );
+                  changedEntry.correctedRequiredFields.push(option.field);
+                  return changedEntry;
                 }
               } else return entry;
             });

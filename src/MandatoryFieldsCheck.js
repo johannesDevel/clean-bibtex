@@ -36,6 +36,11 @@ class MandatoryFieldsCheck extends Component {
             <button onClick={() => this.props.addMissingField()}>
               Add field from suggestion to field
             </button>
+            <button
+              onClick={() => console.log(this.props.missingFieldsOptions)}
+            >
+              show options
+            </button>
             <table border="1">
               <tbody>
                 <tr>
@@ -74,15 +79,15 @@ class MandatoryFieldsCheck extends Component {
                           <span>{missingField}</span>
                         </td>
                         <td>
-                          {
-                            this.props.missingFieldsOptions.find(
+                          {this.props.missingFieldsOptions
+                            .find(
                               field =>
                                 field.entryId === entry.id &&
                                 field.field === missingField
-                            ).suggestion.map(suggestion => (
+                            )
+                            .suggestion.map(suggestion => (
                               <div key={suggestion}>{suggestion}</div>
-                            ))
-                          }
+                            ))}
                         </td>
                         <td>
                           <div>{`Type: ${entry.entryType}`}</div>
