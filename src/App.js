@@ -64,16 +64,15 @@ class App extends Component {
           entry.correctedRequiredFields.length > 0
       )
       .flatMap(entry =>
-        entry.missingRequiredFields.map(missingField => ({
-          entryId: entry.id,
-          title: entry.TITLE,
-          field: missingField,
-          suggestion: [],
-          corrected: entry.correctedRequiredFields.includes(missingField)
-            ? true
-            : false,
-          checked: false
-        }))
+        entry.missingRequiredFields
+          .concat(entry.correctedRequiredFields)
+          .map(missingField => ({
+            entryId: entry.id,
+            title: entry.TITLE,
+            field: missingField,
+            suggestion: [],
+            checked: false
+          }))
       );
 
   getEntriesFromServer = () => {
@@ -174,7 +173,9 @@ class App extends Component {
           option.entryId === missingFieldsOption.entryId &&
           option.field === missingFieldsOption.field
         ) {
-          return missingFieldsOption;
+          const changedOption = Object.assign({}, missingFieldsOption);
+          changedOption.checked = !changedOption.checked;
+          return changedOption;
         } else return option;
       });
       return { missingFieldsOptions: changedOptions };
@@ -380,7 +381,7 @@ class App extends Component {
         this.setState(
           prevState => {
             const changedEntries = prevState.entries.map(entry => {
-              if (entry.id === option.entryId) {
+              if (entry.id === option.entryId && entry[option.field.toUpperCase()] == null) {
                 const attributeName = option.field.toUpperCase();
                 if (option.field === "author") {
                   const newAttribute = {
@@ -409,25 +410,25 @@ class App extends Component {
             return { entries: changedEntries };
           },
           () => {
-            console.log(this.state.entries);
+            BibtexAPI.update({
+              entries: this.state.entries
+            });
           }
         );
       });
+    this.removCheckOptions();
   };
 
-  addAttribute = (id, attribute) => {
-    console.log(attribute);
+  removCheckOptions = () => {
     this.setState(prevState => {
-      const newEntries = prevState.entries.map(entry => {
-        if (entry.id === id) {
-          const newObject = Object.assign(entry, attribute);
-          console.log(newObject);
-          return newObject;
-        } else {
-          return entry;
-        }
+      const changedOptions = prevState.missingFieldsOptions.map(option => {
+        if (option.checked) {
+          const changedOption = Object.assign({}, option);
+          changedOption.checked = false;
+          return changedOption;
+        } else return option;
       });
-      return { entries: newEntries };
+      return { missingFieldsOptions: changedOptions };
     });
   };
 

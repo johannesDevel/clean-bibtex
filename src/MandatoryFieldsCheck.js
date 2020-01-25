@@ -7,15 +7,36 @@ class MandatoryFieldsCheck extends Component {
     this.props.entries.filter(entry => entry.missingRequiredFields.length > 0)
       .length;
 
-  changeOption = option => {
-    const changedOption = Object.assign({}, option);
-    changedOption.checked = !changedOption.checked;
-    this.props.changeMissingFieldsOption(changedOption);
-  };
+  getCorrectedAttributeEntry = option =>
+    this.props.entries
+      .filter(entry => entry.id === option.entryId)
+      .find(entry => entry[option.field.toUpperCase()]);
+
+  getCorrectedAttributeField = option => {
+    const entry = this.getCorrectedAttributeEntry(option);
+    if (entry != null) {
+      const field = entry[option.field.toUpperCase()];
+      if (option.field === 'author' && field.length > 0) {
+        return field.map(attribute => (
+        <div key={attribute}>{attribute}</div>
+        ))
+      } else {
+        return field;
+      }
+    } else {
+      return '-'
+    }
+  }
+
+
+  getTableClassName = option =>
+    this.getCorrectedAttributeEntry(option) != null
+      ? "table-entry-green"
+      : option.suggestion.length > 0
+      ? "table-entry-blue"
+      : "table-entry-red";
 
   render() {
-    const { entries } = this.props;
-
     return (
       <div>
         <div className="statistic">
@@ -31,72 +52,59 @@ class MandatoryFieldsCheck extends Component {
         {this.getMissingFieldsEntries() > 0 && (
           <div className="corrections-table">
             <button onClick={() => this.props.changeFieldSuggestion()}>
-              Search for suggestion
+              Search suggestion online
             </button>
             <button onClick={() => this.props.addMissingField()}>
-              Add field from suggestion to field
+              Add suggestion to field
             </button>
             <button
               onClick={() => console.log(this.props.missingFieldsOptions)}
             >
               show options
             </button>
-            <table border="1">
+            <button onClick={() => console.log(this.props.entries)}>
+              show entries
+            </button>
+            <table>
               <tbody>
                 <tr>
-                  <th>missing required fields</th>
-                  <th>suggestion</th>
-                  <th>Entries with missing required field</th>
+                  <th>Missing field name</th>
+                  <th>Corrected field</th>
+                  <th>Suggestion</th>
+                  <th>Title</th>
                 </tr>
               </tbody>
-              {entries
-                .filter(entry => entry.missingRequiredFields.length > 0)
-                .map(entry =>
-                  entry.missingRequiredFields.map(missingField => (
-                    <tbody key={`${entry.id}+${missingField}`}>
-                      <tr>
-                        <td>
-                          <input
-                            type="checkbox"
-                            name="ba"
-                            checked={
-                              this.props.missingFieldsOptions.find(
-                                field =>
-                                  field.entryId === entry.id &&
-                                  field.field === missingField
-                              ).checked
-                            }
-                            onChange={() =>
-                              this.changeOption(
-                                this.props.missingFieldsOptions.find(
-                                  field =>
-                                    field.entryId === entry.id &&
-                                    field.field === missingField
-                                )
-                              )
-                            }
-                          />
-                          <span>{missingField}</span>
-                        </td>
-                        <td>
-                          {this.props.missingFieldsOptions
-                            .find(
-                              field =>
-                                field.entryId === entry.id &&
-                                field.field === missingField
-                            )
-                            .suggestion.map(suggestion => (
-                              <div key={suggestion}>{suggestion}</div>
-                            ))}
-                        </td>
-                        <td>
-                          <div>{`Type: ${entry.entryType}`}</div>
-                          <div>{`Title: ${entry.TITLE}`}</div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  ))
-                )}
+              {this.props.missingFieldsOptions.map(option => (
+                <tbody key={`${option.entryId}+${option.field}`}>
+                  <tr>
+                    <td className={this.getTableClassName(option)}>
+                      <input
+                        type="checkbox"
+                        checked={option.checked}
+                        onChange={() =>
+                          this.props.changeMissingFieldsOption(option)
+                        }
+                      />
+                      <span>{option.field}</span>
+                    </td>
+                    <td className={this.getTableClassName(option)}>
+                      {this.getCorrectedAttributeField(option)}
+                    </td>
+                    <td className={this.getTableClassName(option)}>
+                      {option.suggestion.map(suggestionField => (
+                        <div key={suggestionField}>{suggestionField}</div>
+                      ))}
+                    </td>
+                    <td className={this.getTableClassName(option)}>
+                      {
+                        this.props.entries.find(
+                          entry => entry.id === option.entryId
+                        ).TITLE
+                      }
+                    </td>
+                  </tr>
+                </tbody>
+              ))}
             </table>
           </div>
         )}
