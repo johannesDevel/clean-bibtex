@@ -76,6 +76,15 @@ class AuthorNameCheck extends Component {
             </li>
           </ul>
         </div>
+        <div>
+          {[{id: 1, name: 'bastian'}, {id: 2, name: 'davis'}, {id: 0, name: 'adrian'}]
+          .sort((author1, author2) => {
+            return author2.id - author1.id;
+          })
+          .map(author => (
+            <div>{author.name}</div>
+          ))}
+        </div>
         {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
             <button onClick={() => this.searchSuggestions()}>

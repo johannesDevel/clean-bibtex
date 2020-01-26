@@ -65,6 +65,7 @@ class AnalyzeErrors extends Component {
                 changeMissingFieldsOption={this.props.changeMissingFieldsOption}
                 changeFieldSuggestion={this.props.changeFieldSuggestion}
                 addMissingField={this.props.addMissingField}
+                selectAllMissingFieldsOptions={this.props.selectAllMissingFieldsOptions}
                 />
               </div>
             </Tabs>

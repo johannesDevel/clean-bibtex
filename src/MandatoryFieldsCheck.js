@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 
 class MandatoryFieldsCheck extends Component {
-  state = {};
+  state = {
+    allSelected: false
+  };
 
   getMissingFieldsEntries = () =>
     this.props.entries.filter(entry => entry.missingRequiredFields.length > 0)
@@ -16,18 +18,23 @@ class MandatoryFieldsCheck extends Component {
     const entry = this.getCorrectedAttributeEntry(option);
     if (entry != null) {
       const field = entry[option.field.toUpperCase()];
-      if (option.field === 'author' && field.length > 0) {
-        return field.map(attribute => (
-        <div key={attribute}>{attribute}</div>
-        ))
+      if (option.field === "author" && field.length > 0) {
+        return field.map(attribute => <div key={attribute}>{attribute}</div>);
       } else {
         return field;
       }
     } else {
-      return '-'
+      return "-";
     }
-  }
+  };
 
+  selectAll = () => {
+    const newAllSelectedState = !this.state.allSelected;
+    this.setState(prevState => ({
+      allSelected: newAllSelectedState
+    }));
+    this.props.selectAllMissingFieldsOptions(newAllSelectedState);
+  };
 
   getTableClassName = option =>
     this.getCorrectedAttributeEntry(option) != null
@@ -54,22 +61,27 @@ class MandatoryFieldsCheck extends Component {
             <button onClick={() => this.props.changeFieldSuggestion()}>
               Search suggestion online
             </button>
-            <button onClick={() => this.props.addMissingField()}>
-              Add suggestion to field
-            </button>
             <button
-              onClick={() => console.log(this.props.missingFieldsOptions)}
+              onClick={() => {
+                this.setState({ allSelected: false });
+                this.props.addMissingField();
+              }}
             >
-              show options
-            </button>
-            <button onClick={() => console.log(this.props.entries)}>
-              show entries
+              Add suggestion to field
             </button>
             <table>
               <tbody>
                 <tr>
-                  <th>Missing field name</th>
-                  <th>Corrected field</th>
+                  <th>
+                    <input
+                      type="checkBox"
+                      name="select-all-missing-fields-checkbox"
+                      checked={this.state.allSelected}
+                      onChange={() => this.selectAll()}
+                    />
+                    Missing field name
+                  </th>
+                  <th>Added field</th>
                   <th>Suggestion</th>
                   <th>Title</th>
                 </tr>
@@ -91,9 +103,11 @@ class MandatoryFieldsCheck extends Component {
                       {this.getCorrectedAttributeField(option)}
                     </td>
                     <td className={this.getTableClassName(option)}>
-                      {option.suggestion.map(suggestionField => (
-                        <div key={suggestionField}>{suggestionField}</div>
-                      ))}
+                      {option.suggestion.length > 0
+                        ? option.suggestion.map(suggestionField => (
+                            <div key={suggestionField}>{suggestionField}</div>
+                          ))
+                        : "-"}
                     </td>
                     <td className={this.getTableClassName(option)}>
                       {

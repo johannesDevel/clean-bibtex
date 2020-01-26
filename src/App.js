@@ -54,6 +54,7 @@ class App extends Component {
           suggestion: author.suggestion,
           checked: false
         }))
+
       );
 
   setInitialMissingFieldsOptions = entries =>
@@ -365,7 +366,6 @@ class App extends Component {
           if (option.entryId === id && option.field === attributeName) {
             const newOption = Object.assign({}, option);
             newOption.suggestion.push(attributeValue);
-            newOption.checked = false;
             return newOption;
           } else return option;
         });
@@ -381,7 +381,10 @@ class App extends Component {
         this.setState(
           prevState => {
             const changedEntries = prevState.entries.map(entry => {
-              if (entry.id === option.entryId && entry[option.field.toUpperCase()] == null) {
+              if (
+                entry.id === option.entryId &&
+                entry[option.field.toUpperCase()] == null
+              ) {
                 const attributeName = option.field.toUpperCase();
                 if (option.field === "author") {
                   const newAttribute = {
@@ -432,6 +435,17 @@ class App extends Component {
     });
   };
 
+  selectAllMissingFieldsOptions = checked => {
+    this.setState(prevState => {
+      const changedOptions = prevState.missingFieldsOptions.map(option => {
+        const changedOption = Object.assign({}, option);
+        changedOption.checked = checked;
+        return changedOption;
+      });
+      return { missingFieldsOptions: changedOptions };
+    });
+  };
+
   searchFieldSuggestion = title =>
     BibtexAPI.searchMissingField(title.replace(/[\s]+/g, "+")).then(result => {
       if (
@@ -469,6 +483,7 @@ class App extends Component {
           changeMissingFieldsOption={this.changeMissingFieldsOption}
           changeFieldSuggestion={this.changeFieldSuggestion}
           addMissingField={this.addMissingField}
+          selectAllMissingFieldsOptions={this.selectAllMissingFieldsOptions}
         />
       </div>
     );
