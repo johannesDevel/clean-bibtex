@@ -3,7 +3,7 @@ import React, { Component } from "react";
 class AuthorNameCheck extends Component {
   state = {
     allSelected: false
-  }
+  };
 
   getInconsistentAuthorEntries = () =>
     this.props.entries.filter(
@@ -17,15 +17,11 @@ class AuthorNameCheck extends Component {
         )
     );
 
-    getInconsistentAuthorEntriesCount = () =>
+  getInconsistentAuthorEntriesCount = () =>
     this.props.entries.filter(
       entry =>
         entry.AUTHOR != null &&
-        entry.AUTHOR.some(
-          author =>
-            author.abbreviated ||
-            author.misspelling
-        )
+        entry.AUTHOR.some(author => author.abbreviated || author.misspelling)
     );
 
   searchSuggestions = () => {
@@ -35,14 +31,14 @@ class AuthorNameCheck extends Component {
     );
   };
 
-  changeAuthorName = () => {
-    console.log(this.state);
-    this.props.authorNameOptions
-      .filter(option => option.checked)
-      .forEach(option => {
-        this.props.changeAuthorName(option.entryId, option.author);
-      });
-  };
+  // changeAuthorName = () => {
+  //   console.log(this.state);
+  //   this.props.authorNameOptions
+  //     .filter(option => option.checked)
+  //     .forEach(option => {
+  //       this.props.changeAuthorName(option.entryId, option.author);
+  //     });
+  // };
 
   getChecked = authorName => {
     const checkedOption = this.props.authorNameOptions.find(
@@ -61,7 +57,7 @@ class AuthorNameCheck extends Component {
       allSelected: newAllSelectedState
     }));
     this.props.changeAllAuthorNameOptions(newAllSelectedState);
-  }
+  };
 
   render() {
     return (
@@ -76,40 +72,57 @@ class AuthorNameCheck extends Component {
             </li>
           </ul>
         </div>
-        <div>
-          {[{id: 1, name: 'bastian'}, {id: 2, name: 'davis'}, {id: 0, name: 'adrian'}]
-          .sort((author1, author2) => {
-            return author2.id - author1.id;
-          })
-          .map(author => (
-            <div>{author.name}</div>
-          ))}
-        </div>
         {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
             <button onClick={() => this.searchSuggestions()}>
               Search author suggestion
             </button>
-            <button onClick={() => this.changeAuthorName()}>
+            <button onClick={() => this.props.changeAuthorName()}>
               change author name to suggestion
             </button>
-            {/* <button onClick={() => console.log(this.props.authorNameOptions)}>show options</button> */}
+            <button onClick={() => console.log(this.props.authorNameOptions)}>show options</button>
+            <button onClick={() => console.log(this.props.entries)}>show Entries</button>
             <table>
               <tbody>
                 <tr>
                   <th>
                     <input
-                    type="checkBox"
-                    name="select-all-author-name-checkbox"
-                    checked={this.state.allSelected}
-                    onChange={() => this.selectAll()}
+                      type="checkBox"
+                      name="select-all-author-name-checkbox"
+                      checked={this.state.allSelected}
+                      onChange={() => this.selectAll()}
                     />
-                    Current Author Name</th>
+                    Current Author Name
+                  </th>
                   <th>Author Name Suggestion</th>
                   <th>Entry Title</th>
                 </tr>
               </tbody>
-              {this.getInconsistentAuthorEntries().map(entry => (
+              {this.props.authorNameOptions.map(author => (
+                <tbody key={`${author.entryId}+${author.author}`}>
+                  <tr>
+                    <td>
+                    <input
+                          type="checkBox"
+                          checked={author.checked}
+                          onChange={() => this.props.changeAuthorNameOption(author)}
+                        />
+                        {author.author}
+                    </td>
+                    <td>
+                    {author.suggestion != null &&
+                        author.suggestion.length > 0
+                          ? author.suggestion[0]
+                          : "no suggestion found"}
+                    </td>
+                    <td>
+                      {author.title}
+                    </td>
+                  </tr>
+                </tbody>
+              ))}
+
+              {/* {this.getInconsistentAuthorEntries().map(entry => (
                 <tbody key={entry.id}>
                   {entry.AUTHOR.filter(
                     author =>
@@ -146,7 +159,7 @@ class AuthorNameCheck extends Component {
                     </tr>
                   ))}
                 </tbody>
-              ))}
+              ))} */}
             </table>
           </div>
         )}

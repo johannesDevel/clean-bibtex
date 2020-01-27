@@ -54,8 +54,12 @@ class App extends Component {
           suggestion: author.suggestion,
           checked: false
         }))
-
-      );
+      )
+      .sort((author1, author2) => {
+        if (author1.author < author2.author) return -1;
+        if (author1.author > author2.author) return 1;
+        return 0;
+      });
 
   setInitialMissingFieldsOptions = entries =>
     entries
@@ -141,19 +145,18 @@ class App extends Component {
       })
     }));
 
-  changeAuthorNameOption = authorName => {
+  changeAuthorNameOption = author => {
     this.setState(prevState => {
       const newOptions = prevState.authorNameOptions.map(option => {
-        if (option.author === authorName) {
-          return {
-            entryId: option.entryId,
-            title: option.title,
-            author: option.author,
-            suggestion: option.suggestion,
-            checked: !option.checked
-          };
+        if (
+          option.author === author.author &&
+          option.entryId === author.entryId
+        ) {
+          const newOption = Object.assign({}, option);
+          newOption.checked = !option.checked;
+          return newOption;
         } else {
-          return Object.assign({}, option);
+          return option;
         }
       });
       return { authorNameOptions: newOptions };
@@ -203,42 +206,60 @@ class App extends Component {
     );
   };
 
-  changeAuthorName = (entryId, authorName) => {
+  changeAuthorName = () => {
     this.setState(
       prevState => {
         const newEnries = prevState.entries.map(entry => {
-          if (entry.AUTHOR != null && entry.id === entryId) {
+          if (
+            entry.AUTHOR != null &&
+            this.state.authorNameOptions.some(
+              option => option.entryId === entry.id && option.checked
+            )
+          ) {
             const newEntry = Object.assign({}, entry);
             const newEntryAuthor = newEntry.AUTHOR.map(author => {
+              const authorOption = this.state.authorNameOptions.find(
+                option =>
+                  option.author === author.name &&
+                  option.checked &&
+                  option.entryId === entry.id
+              );
               if (
-                author.name === authorName &&
+                authorOption != null &&
                 author.suggestion != null &&
-                author.suggestion.length > 0
+                author.suggestion.length > 0 &&
+                author.abbreviated
               ) {
                 const newAuthor = Object.assign({}, author);
                 newAuthor.name = newAuthor.suggestion[0];
                 newAuthor.abbreviated = false;
                 newAuthor.changedAbbreviation = true;
+                console.log("changed author");
+                console.log(newAuthor);
                 return newAuthor;
-              } else {
-                return Object.assign({}, author);
-              }
+              } else return author;
             });
             newEntry.AUTHOR = newEntryAuthor;
             return newEntry;
           } else {
-            return Object.assign({}, entry);
+            return entry;
           }
         });
         return { entries: newEnries };
       },
       () => {
-        BibtexAPI.update({
-          entries: this.state.entries
-        });
-        this.setState(prevState => ({
-          authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
-        }));
+        this.setState(
+          prevState => ({
+            authorNameOptions: this.setInitialAuthorNameOptions(
+              prevState.entries
+            )
+          }),
+          () => {
+            BibtexAPI.update({
+              entries: this.state.entries
+            });
+          }
+        );
       }
     );
   };
