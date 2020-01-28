@@ -234,8 +234,6 @@ class App extends Component {
                 newAuthor.name = newAuthor.suggestion[0];
                 newAuthor.abbreviated = false;
                 newAuthor.changedAbbreviation = true;
-                console.log("changed author");
-                console.log(newAuthor);
                 return newAuthor;
               } else return author;
             });
