@@ -38,7 +38,8 @@ class App extends Component {
             author =>
               author.abbreviated ||
               author.misspelling ||
-              author.changedAbbreviation
+              author.changedAbbreviation ||
+              author.changedMisspelling
           )
       )
       .flatMap(entry =>
@@ -46,7 +47,8 @@ class App extends Component {
           author =>
             author.abbreviated ||
             author.misspelling ||
-            author.changedAbbreviation
+            author.changedAbbreviation ||
+            author.changedMisspelling
         ).map(author => ({
           entryId: entry.id,
           title: entry.TITLE,
@@ -228,12 +230,18 @@ class App extends Component {
                 authorOption != null &&
                 author.suggestion != null &&
                 author.suggestion.length > 0 &&
-                author.abbreviated
+                (author.abbreviated || author.misspelling)
               ) {
                 const newAuthor = Object.assign({}, author);
                 newAuthor.name = newAuthor.suggestion[0];
-                newAuthor.abbreviated = false;
-                newAuthor.changedAbbreviation = true;
+                if (author.abbreviated) {
+                  newAuthor.abbreviated = false;
+                  newAuthor.changedAbbreviation = true;
+                }
+                if (author.misspelling) {
+                  newAuthor.misspelling = false;
+                  newAuthor.changedMisspelling = true;
+                }
                 return newAuthor;
               } else return author;
             });
@@ -409,7 +417,9 @@ class App extends Component {
                   const newAttribute = {
                     AUTHOR: option.suggestion,
                     abbreviated: false,
-                    changedAbbreviation: false
+                    changedAbbreviation: false,
+                    misspelling: false,
+                    changedMisspelling: false
                   };
                   const changedEntry = Object.assign(entry, newAttribute);
                   changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(

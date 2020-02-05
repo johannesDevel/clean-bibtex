@@ -3,8 +3,23 @@ import Tabs from "./Tabs";
 import CapitalizationCheck from "./CapitalizationCheck";
 import MandatoryFieldsCheck from "./MandatoryFieldsCheck";
 import AuthorNameCheck from "./AuthorNameCheck";
+import * as BibtexAPI from "./utils/BibtexAPI";
 
 class AnalyzeErrors extends Component {
+  downloadBibtex = bibtexContent => {
+    console.log(bibtexContent);
+    if (bibtexContent != null && bibtexContent.bibtex != null) {
+      const element = document.createElement("a");
+      const file = new Blob([bibtexContent.bibtex], {
+        type: "text/plain"
+      });
+      element.href = URL.createObjectURL(file);
+      element.download = "changedBibTeX.bib";
+      document.body.appendChild(element); // Required for this to work in FireFox
+      element.click();
+    }
+  };
+
   render() {
     return (
       <div className="start-wrapper">
@@ -41,14 +56,16 @@ class AnalyzeErrors extends Component {
                   ).length === 0
                 }
               >
-                <AuthorNameCheck 
-                entries={this.props.entries}
-                getEntriesFromServer={this.props.getEntriesFromServer}
-                changeAuthorName={this.props.changeAuthorName}
-                changeAuthorSuggestion={this.props.changeAuthorSuggestion}
-                authorNameOptions={this.props.authorNameOptions}
-                changeAuthorNameOption={this.props.changeAuthorNameOption}
-                changeAllAuthorNameOptions={this.props.changeAllAuthorNameOptions}
+                <AuthorNameCheck
+                  entries={this.props.entries}
+                  getEntriesFromServer={this.props.getEntriesFromServer}
+                  changeAuthorName={this.props.changeAuthorName}
+                  changeAuthorSuggestion={this.props.changeAuthorSuggestion}
+                  authorNameOptions={this.props.authorNameOptions}
+                  changeAuthorNameOption={this.props.changeAuthorNameOption}
+                  changeAllAuthorNameOptions={
+                    this.props.changeAllAuthorNameOptions
+                  }
                 />
               </div>
               <div
@@ -60,17 +77,30 @@ class AnalyzeErrors extends Component {
                 }
               >
                 <MandatoryFieldsCheck
-                entries={this.props.entries}
-                missingFieldsOptions={this.props.missingFieldsOptions}
-                changeMissingFieldsOption={this.props.changeMissingFieldsOption}
-                changeFieldSuggestion={this.props.changeFieldSuggestion}
-                addMissingField={this.props.addMissingField}
-                selectAllMissingFieldsOptions={this.props.selectAllMissingFieldsOptions}
+                  entries={this.props.entries}
+                  missingFieldsOptions={this.props.missingFieldsOptions}
+                  changeMissingFieldsOption={
+                    this.props.changeMissingFieldsOption
+                  }
+                  changeFieldSuggestion={this.props.changeFieldSuggestion}
+                  addMissingField={this.props.addMissingField}
+                  selectAllMissingFieldsOptions={
+                    this.props.selectAllMissingFieldsOptions
+                  }
                 />
               </div>
             </Tabs>
           </div>
-          <button className="download-button">Download BibTeX</button>
+          <button
+            className="download-button"
+            onClick={() =>
+              BibtexAPI.getChangedBibtex().then(result =>
+                this.downloadBibtex(result)
+              )
+            }
+          >
+            Download BibTeX
+          </button>
         </div>
       </div>
     );
