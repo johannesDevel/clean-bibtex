@@ -274,7 +274,6 @@ class App extends Component {
     options.forEach(option => {
       this.searchAuthorSuggestion(option.title, option.author).then(
         foundAuthorSuggestion => {
-          console.log(foundAuthorSuggestion);
           if (foundAuthorSuggestion != null) {
             this.setState(
               prevState => {
@@ -284,7 +283,6 @@ class App extends Component {
                       if (author.name === option.author) {
                         const changedAuthor = Object.assign({}, author);
                         changedAuthor.suggestion.unshift(foundAuthorSuggestion);
-                        console.log(changedAuthor);
                         return changedAuthor;
                       } else return author;
                     });
@@ -324,7 +322,6 @@ class App extends Component {
           author.startsWith(itemAuthor.family)
         );
         if (foundAuthor != null) {
-          // console.log(foundAuthor);
           return `${foundAuthor.family}, ${foundAuthor.given}`;
         } else return null;
       } else return null;
@@ -344,7 +341,6 @@ class App extends Component {
             result.title.length > 0 &&
             result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())
           ) {
-            console.log("title is the same");
             this.state.missingFieldsOptions
               .filter(
                 option =>
@@ -379,8 +375,6 @@ class App extends Component {
                   this.addSuggestion(entry.id, "author", authors);
                 }
               });
-          } else {
-            console.log("title is not the same");
           }
         })
       );
@@ -414,14 +408,14 @@ class App extends Component {
               ) {
                 const attributeName = option.field.toUpperCase();
                 if (option.field === "author") {
-                  const newAttribute = {
-                    AUTHOR: option.suggestion,
+                  const newAuthors = option.suggestion.map(suggestedAuthor => ({
+                    name: suggestedAuthor,
                     abbreviated: false,
                     changedAbbreviation: false,
                     misspelling: false,
                     changedMisspelling: false
-                  };
-                  const changedEntry = Object.assign(entry, newAttribute);
+                  }));
+                  const changedEntry = { ...entry, AUTHOR: newAuthors };
                   changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(
                     field => field !== "author"
                   );
@@ -441,11 +435,9 @@ class App extends Component {
             });
             return { entries: changedEntries };
           },
-          () => {
-            BibtexAPI.update({
+          () => BibtexAPI.update({
               entries: this.state.entries
-            });
-          }
+            })
         );
       });
     this.removCheckOptions();

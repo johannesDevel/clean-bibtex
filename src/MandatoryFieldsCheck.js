@@ -19,7 +19,7 @@ class MandatoryFieldsCheck extends Component {
     if (entry != null) {
       const field = entry[option.field.toUpperCase()];
       if (option.field === "author" && field.length > 0) {
-        return field.map(attribute => <div key={attribute}>{attribute}</div>);
+        return field.map(attribute => <div key={attribute.name}>{attribute.name}</div>);
       } else {
         return field;
       }
