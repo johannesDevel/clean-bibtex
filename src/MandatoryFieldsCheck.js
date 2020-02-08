@@ -19,7 +19,9 @@ class MandatoryFieldsCheck extends Component {
     if (entry != null) {
       const field = entry[option.field.toUpperCase()];
       if (option.field === "author" && field.length > 0) {
-        return field.map(attribute => <div key={attribute.name}>{attribute.name}</div>);
+        return field.map(attribute => (
+          <div key={attribute.name}>{attribute.name}</div>
+        ));
       } else {
         return field;
       }
@@ -40,8 +42,8 @@ class MandatoryFieldsCheck extends Component {
     this.getCorrectedAttributeEntry(option) != null
       ? "table-entry-green"
       : option.suggestion.length > 0
-        ? "table-entry-blue"
-        : "table-entry-red";
+      ? "table-entry-blue"
+      : "table-entry-red";
 
   render() {
     return (
@@ -56,80 +58,111 @@ class MandatoryFieldsCheck extends Component {
             </li>
           </ul>
         </div>
-        {this.getMissingFieldsEntries() > 0 && (
-          <div className="corrections-table">
-            <button
-              onClick={() => this.props.changeFieldSuggestion()}
-              disabled={!this.props.missingFieldsOptions.some(option => option.checked)}
-            >
-              Search suggestion online
-            </button>
-            <button
-              disabled={!this.props.missingFieldsOptions.some(option => option.checked)}
-              onClick={() => {
-                this.setState({ allSelected: false });
-                this.props.addMissingField();
-              }}
-            >
-              Add suggestion to field
-            </button>
-            <table>
-              <tbody>
+        <div className="corrections-table">
+          <button
+            onClick={() => this.props.changeFieldSuggestion()}
+            disabled={
+              !this.props.missingFieldsOptions.some(option => option.checked)
+            }
+          >
+            Search suggestion online
+          </button>
+          <button
+            disabled={
+              !this.props.missingFieldsOptions.some(option => option.checked)
+            }
+            onClick={() => {
+              this.setState({ allSelected: false });
+              this.props.addMissingField();
+            }}
+          >
+            Add suggestion to field
+          </button>
+          <table border='1'>
+            <tbody>
+              <tr>
+                <th>
+                  <input
+                    type="checkBox"
+                    name="select-all-missing-fields-checkbox"
+                    checked={this.state.allSelected}
+                    onChange={() => this.selectAll()}
+                  />
+                </th>
+                <th>Missing field name</th>
+                <th>Added field</th>
+                <th>Suggestion</th>
+                <th>Title</th>
+              </tr>
+            </tbody>
+            {this.props.entries.map(entry => (
+              <tbody key={entry.id}>
                 <tr>
-                  <th>
-                    <input
-                      type="checkBox"
-                      name="select-all-missing-fields-checkbox"
-                      checked={this.state.allSelected}
-                      onChange={() => this.selectAll()}
-                    />
-                  </th>
-                  <th>
-                    Missing field name
-                  </th>
-                  <th>Added field</th>
-                  <th>Suggestion</th>
-                  <th>Title</th>
+                  {Object.keys(entry)
+                    .filter(key => key === key.toUpperCase())
+                    .map(key => (
+                      <tbody>
+                        <td>
+                          <input type="checkbox" />
+                        </td>
+                        <td>
+                          {key}
+                        </td>
+                        <td>
+                          {key === 'AUTHOR'
+  ? entry.AUTHOR != null ? entry[key].map(author => <div>{author.name}</div>)
+  : 'no author found'
+                          : entry[key]
+                          }
+                        </td>
+                        <td>
+                          blaba
+                        </td>
+                        <td>
+                          blab
+                        </td>
+                      </tbody>
+                    ))}
                 </tr>
               </tbody>
-              {this.props.missingFieldsOptions.map(option => (
-                <tbody key={`${option.entryId}+${option.field}`}>
-                  <tr>
-                    <td className={this.getTableClassName(option)}>
-                      <input
-                        type="checkbox"
-                        checked={option.checked}
-                        onChange={() =>
-                          this.props.changeMissingFieldsOption(option)
-                        }
-                      />
-                    </td>
-                    <td className={this.getTableClassName(option)}>
-                      <span>{option.field}</span>
-                    </td>
-                    <td className={this.getTableClassName(option)}>
-                      {this.getCorrectedAttributeField(option)}
-                    </td>
-                    <td className={this.getTableClassName(option)}>
-                      {option.suggestion.length > 0
-                        ? option.suggestion.map(suggestionField => (
+            ))}
+            {/* {this.props.missingFieldsOptions.map(option => (
+              <tbody key={`${option.entryId}+${option.field}`}>
+                <tr>
+                  <td className={this.getTableClassName(option)}>
+                    <input
+                      type="checkbox"
+                      checked={option.checked}
+                      onChange={() =>
+                        this.props.changeMissingFieldsOption(option)
+                      }
+                    />
+                  </td>
+                  <td className={this.getTableClassName(option)}>
+                    <span>{option.field}</span>
+                  </td>
+                  <td className={this.getTableClassName(option)}>
+                    {this.getCorrectedAttributeField(option)}
+                  </td>
+                  <td className={this.getTableClassName(option)}>
+                    {option.suggestion.length > 0
+                      ? option.suggestion.map(suggestionField => (
                           <div key={suggestionField}>{suggestionField}</div>
                         ))
-                        : "-"}
-                    </td>
-                    <td className={this.getTableClassName(option)}>
-                      {
-                        this.props.entries.find(
-                          entry => entry.id === option.entryId
-                        ).TITLE
-                      }
-                    </td>
-                  </tr>
-                </tbody>
-              ))}
-            </table>
-          </div>
-        )}
+                      : "-"}
+                  </td>
+                  <td className={this.getTableClassName(option)}>
+                    {
+                      this.props.entries.find(
+                        entry => entry.id === option.entryId
+                      ).TITLE
+                    }
+                  </td>
+                </tr>
+              </tbody>
+            ))} */}
+          </table>
+        </div>
       </div>
     );
   }
