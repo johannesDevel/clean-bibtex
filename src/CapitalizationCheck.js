@@ -2,15 +2,8 @@ import React, { Component } from "react";
 
 class CapitalizationCheck extends Component {
   state = {
-    showAdvancedSettings: false,
     correctedElements: [],
     allSelected: false
-  };
-
-  handleButton = () => {
-    this.setState(prevState => ({
-      showAdvancedSettings: !prevState.showAdvancedSettings
-    }));
   };
 
   handleSaveSelection = () => {
@@ -82,16 +75,9 @@ class CapitalizationCheck extends Component {
               <li>{this.getCaseSum().noCaseSum} without known case found</li>
             )}
           </ul>
-
-          <button
-            className="btn-toggle-advanced"
-            onClick={event => this.handleButton(event)}
-          >
-            Correct errors
-          </button>
         </div>
 
-        {this.state.showAdvancedSettings && entries.length > 0 && (
+        {entries.length > 0 && (
           <div className="corrections-table">
             <button
               className="btn-select-all"
