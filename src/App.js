@@ -3,6 +3,7 @@ import "./App.css";
 import AppStart from "./AppStart";
 import * as BibtexAPI from "./utils/BibtexAPI";
 import AnalyzeErrors from "./AnalzyeErrors";
+import getNotRequiredFields from "./utils/getNotRequiredFields";
 
 class App extends Component {
   state = {
@@ -441,6 +442,21 @@ class App extends Component {
     );
   };
 
+  removeNotMandatoryFields = () => {
+    const changedEntries = [ ...this.state.entries ];
+    changedEntries.filter(entry => entry.mandatoryFieldsCheck)
+    .forEach(entry => {
+      const changedEntry = { ...entry };
+      const entryKeys = Object.keys(changedEntry).filter(keys => keys === keys.toUpperCase());
+      const notRequiredFields = getNotRequiredFields(changedEntry.entryType, entryKeys);
+      notRequiredFields.forEach(field => {
+        delete changedEntry[field];
+      });
+      changedEntries[entry.id] = changedEntry;
+    });
+    this.setState({ entries: changedEntries }, () => this.changeAllMandatoryFieldCheck(false));
+  }
+
   render() {
     return (
       <div className="App">
@@ -467,6 +483,7 @@ class App extends Component {
           searchMandatoryFieldSuggestion={this.searchMandatoryFieldSuggestion}
           changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
           addMissingFields={this.addMissingFields}
+          removeNotMandatoryFields={this.removeNotMandatoryFields}
         />
       </div>
     );

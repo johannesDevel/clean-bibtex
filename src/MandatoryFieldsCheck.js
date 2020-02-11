@@ -48,6 +48,17 @@ class MandatoryFieldsCheck extends Component {
             >
               Add field suggestion to entry
             </button>
+            <button
+              onClick={() => {
+                this.setState({ allSelected: false });
+                this.props.removeNotMandatoryFields();
+              }}
+              disabled={
+                !this.props.entries.some(entry => entry.mandatoryFieldsCheck)
+              }
+            >
+              Remove not mandatory fields
+            </button>
             <table>
               <tbody>
                 <tr>
