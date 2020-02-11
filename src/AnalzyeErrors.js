@@ -87,6 +87,10 @@ class AnalyzeErrors extends Component {
                   selectAllMissingFieldsOptions={
                     this.props.selectAllMissingFieldsOptions
                   }
+                  changeMandatoryFieldCheck={this.props.changeMandatoryFieldCheck}
+                  toggleMandatorFieldCheck={this.props.toggleMandatorFieldCheck}
+                  searchMandatoryFieldSuggestion={this.props.searchMandatoryFieldSuggestion}
+                  changeAllMandatoryFieldCheck={this.props.changeAllMandatoryFieldCheck}
                 />
               </div>
             </Tabs>

@@ -436,8 +436,8 @@ class App extends Component {
             return { entries: changedEntries };
           },
           () => BibtexAPI.update({
-              entries: this.state.entries
-            })
+            entries: this.state.entries
+          })
         );
       });
     this.removCheckOptions();
@@ -478,6 +478,73 @@ class App extends Component {
         return result.message.items[0];
       } else return null;
     });
+  
+  changeAllMandatoryFieldCheck = checked => {
+    const changedEntries = [ ...this.state.entries ];
+    changedEntries.forEach((entry, index) => {
+      changedEntries[index] = { ...entry, mandatoryFieldsCheck: checked};
+    });
+    this.setState({ entries: changedEntries });
+  }
+
+  toggleMandatorFieldCheck = id =>
+    this.changeMandatoryFieldCheck(id, !this.state.entries[id].mandatoryFieldsCheck)
+
+  changeMandatoryFieldCheck = (id, checked) => {
+    const changedEntries = [...this.state.entries];
+    const changedEntry = { ...changedEntries[id], mandatoryFieldsCheck: checked };
+    changedEntries[id] = changedEntry;
+    this.setState({ entries: changedEntries });
+  }
+
+  searchMandatoryFieldSuggestion = () => {
+    const changedEntries = [...this.state.entries];
+    changedEntries.filter(entry => entry.mandatoryFieldsCheck && entry.missingRequiredFields.length > 0)
+      .forEach(entry => {
+        const changedEntry = { ...changedEntries[entry.id] };
+        this.searchFieldSuggestion(changedEntry.TITLE)
+          .then(result => {
+            if (result.title.length > 0 &&
+              result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())) {
+              const changedMissingFields = [...entry.missingRequiredFields];
+              changedMissingFields.forEach(missingField => {
+                const missingFieldUpperCase = missingField.toUpperCase();
+                if ((missingFieldUpperCase === "BOOKTITLE" || missingFieldUpperCase === "JOURNAL") &&
+                  result["container-title"] != null && result["container-title"].length > 0) {
+                  changedEntry.mandatoryFieldsSuggestions[missingFieldUpperCase] = result["container-title"][0];
+                  changedEntries[entry.id] = changedEntry;
+                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+                    entries: this.state.entries
+                  }));
+                }
+                if (missingFieldUpperCase === "YEAR" && result.created != null) {
+                  changedEntry.mandatoryFieldsSuggestions.YEAR = result.created["date-parts"][0][0];
+                  changedEntries[entry.id] = changedEntry;
+                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+                    entries: this.state.entries
+                  }));
+                }
+                if (missingFieldUpperCase === "AUTHOR" && result.author != null && result.author.length > 0) {
+                  const authors = result.author.map(author => ({
+                    name: `${author.family}, ${author.given}`,
+                    abbreviated: false,
+                    changedAbbreviation: false,
+                    misspelling: false,
+                    changedMisspelling: false,
+                    suggestion: []
+                  }));
+                  changedEntry.mandatoryFieldsSuggestions.AUTHOR = authors;
+                  changedEntries[entry.id] = changedEntry;
+                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+                    entries: this.state.entries
+                  }));
+                }
+              });
+            }
+          });
+      });
+
+  }
 
   render() {
     return (
@@ -505,6 +572,10 @@ class App extends Component {
           changeFieldSuggestion={this.changeFieldSuggestion}
           addMissingField={this.addMissingField}
           selectAllMissingFieldsOptions={this.selectAllMissingFieldsOptions}
+          changeMandatoryFieldCheck={this.changeMandatoryFieldCheck}
+          toggleMandatorFieldCheck={this.toggleMandatorFieldCheck}
+          searchMandatoryFieldSuggestion={this.searchMandatoryFieldSuggestion}
+          changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
         />
       </div>
     );
