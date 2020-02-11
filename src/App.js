@@ -9,8 +9,7 @@ class App extends Component {
     bibtexText: "",
     entries: [],
     capitalizationOptions: [],
-    authorNameOptions: [],
-    missingFieldsOptions: []
+    authorNameOptions: []
   };
 
   componentDidMount() {
@@ -20,10 +19,7 @@ class App extends Component {
           id: entry.id,
           checked: false
         })),
-        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries),
-        missingFieldsOptions: this.setInitialMissingFieldsOptions(
-          prevState.entries
-        )
+        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
       }),
       this.getEntriesFromServer()
     );
@@ -62,25 +58,6 @@ class App extends Component {
         if (author1.author > author2.author) return 1;
         return 0;
       });
-
-  setInitialMissingFieldsOptions = entries =>
-    entries
-      .filter(
-        entry =>
-          entry.missingRequiredFields.length > 0 ||
-          entry.correctedRequiredFields.length > 0
-      )
-      .flatMap(entry =>
-        entry.missingRequiredFields
-          .concat(entry.correctedRequiredFields)
-          .map(missingField => ({
-            entryId: entry.id,
-            title: entry.TITLE,
-            field: missingField,
-            suggestion: [],
-            checked: false
-          }))
-      );
 
   getEntriesFromServer = () => {
     BibtexAPI.get().then(stateServer => {
@@ -172,21 +149,21 @@ class App extends Component {
         .concat([optionToChange])
     }));
 
-  changeMissingFieldsOption = missingFieldsOption => {
-    this.setState(prevState => {
-      const changedOptions = prevState.missingFieldsOptions.map(option => {
-        if (
-          option.entryId === missingFieldsOption.entryId &&
-          option.field === missingFieldsOption.field
-        ) {
-          const changedOption = Object.assign({}, missingFieldsOption);
-          changedOption.checked = !changedOption.checked;
-          return changedOption;
-        } else return option;
-      });
-      return { missingFieldsOptions: changedOptions };
-    });
-  };
+  // changeMissingFieldsOption = missingFieldsOption => {
+  //   this.setState(prevState => {
+  //     const changedOptions = prevState.missingFieldsOptions.map(option => {
+  //       if (
+  //         option.entryId === missingFieldsOption.entryId &&
+  //         option.field === missingFieldsOption.field
+  //       ) {
+  //         const changedOption = Object.assign({}, missingFieldsOption);
+  //         changedOption.checked = !changedOption.checked;
+  //         return changedOption;
+  //       } else return option;
+  //     });
+  //     return { missingFieldsOptions: changedOptions };
+  //   });
+  // };
 
   loadDataFromServer = stateServer =>
     this.setState({
@@ -195,10 +172,7 @@ class App extends Component {
         id: entry.id,
         checked: false
       })),
-      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries),
-      missingFieldsOptions: this.setInitialMissingFieldsOptions(
-        stateServer.entries
-      )
+      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries)
     });
 
   onSetBibtexText = textInput => {
@@ -328,145 +302,6 @@ class App extends Component {
     });
   };
 
-  changeFieldSuggestion = () => {
-    this.state.entries
-      .filter(entry =>
-        this.state.missingFieldsOptions.some(
-          option => option.entryId === entry.id && option.checked
-        )
-      )
-      .forEach(entry =>
-        this.searchFieldSuggestion(entry.TITLE).then(result => {
-          if (
-            result.title.length > 0 &&
-            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())
-          ) {
-            this.state.missingFieldsOptions
-              .filter(
-                option =>
-                  option.entryId === entry.id &&
-                  option.checked &&
-                  option.suggestion.length === 0
-              )
-              .forEach(option => {
-                if (
-                  (option.field === "booktitle" ||
-                    option.field === "journal") &&
-                  result["container-title"] != null &&
-                  result["container-title"].length > 0
-                ) {
-                  this.addSuggestion(entry.id, option.field, [
-                    result["container-title"][0]
-                  ]);
-                }
-                if (option.field === "year" && result.created != null) {
-                  this.addSuggestion(entry.id, "year", [
-                    result.created["date-parts"][0][0]
-                  ]);
-                }
-                if (
-                  option.field === "author" &&
-                  result.author != null &&
-                  result.author.length > 0
-                ) {
-                  const authors = result.author.map(
-                    author => `${author.family}, ${author.given}`
-                  );
-                  this.addSuggestion(entry.id, "author", authors);
-                }
-              });
-          }
-        })
-      );
-  };
-
-  addSuggestion = (id, attributeName, attributeValues) => {
-    attributeValues.forEach(attributeValue => {
-      this.setState(prevState => {
-        const newOptions = prevState.missingFieldsOptions.map(option => {
-          if (option.entryId === id && option.field === attributeName) {
-            const newOption = Object.assign({}, option);
-            newOption.suggestion.push(attributeValue);
-            return newOption;
-          } else return option;
-        });
-        return { missingFieldsOptions: newOptions };
-      });
-    });
-  };
-
-  addMissingField = () => {
-    this.state.missingFieldsOptions
-      .filter(option => option.checked && option.suggestion.length > 0)
-      .forEach(option => {
-        this.setState(
-          prevState => {
-            const changedEntries = prevState.entries.map(entry => {
-              if (
-                entry.id === option.entryId &&
-                entry[option.field.toUpperCase()] == null
-              ) {
-                const attributeName = option.field.toUpperCase();
-                if (option.field === "author") {
-                  const newAuthors = option.suggestion.map(suggestedAuthor => ({
-                    name: suggestedAuthor,
-                    abbreviated: false,
-                    changedAbbreviation: false,
-                    misspelling: false,
-                    changedMisspelling: false
-                  }));
-                  const changedEntry = { ...entry, AUTHOR: newAuthors };
-                  changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(
-                    field => field !== "author"
-                  );
-                  changedEntry.correctedRequiredFields.push("author");
-                  return changedEntry;
-                } else {
-                  const changedEntry = Object.assign(entry, {
-                    [attributeName]: option.suggestion[0]
-                  });
-                  changedEntry.missingRequiredFields = changedEntry.missingRequiredFields.filter(
-                    field => field !== option.field
-                  );
-                  changedEntry.correctedRequiredFields.push(option.field);
-                  return changedEntry;
-                }
-              } else return entry;
-            });
-            return { entries: changedEntries };
-          },
-          () => BibtexAPI.update({
-            entries: this.state.entries
-          })
-        );
-      });
-    this.removCheckOptions();
-  };
-
-  removCheckOptions = () => {
-    this.setState(prevState => {
-      const changedOptions = prevState.missingFieldsOptions.map(option => {
-        if (option.checked) {
-          const changedOption = Object.assign({}, option);
-          changedOption.checked = false;
-          return changedOption;
-        } else return option;
-      });
-      return { missingFieldsOptions: changedOptions };
-    });
-  };
-
-  selectAllMissingFieldsOptions = checked => {
-    this.setState(prevState => {
-      const changedOptions = prevState.missingFieldsOptions.map(option => {
-        const changedOption = Object.assign({}, option);
-        changedOption.checked = checked;
-        return changedOption;
-      });
-      return { missingFieldsOptions: changedOptions };
-    });
-  };
-
   searchFieldSuggestion = title =>
     BibtexAPI.searchMissingField(title.replace(/[\s]+/g, "+")).then(result => {
       if (
@@ -478,73 +313,133 @@ class App extends Component {
         return result.message.items[0];
       } else return null;
     });
-  
+
   changeAllMandatoryFieldCheck = checked => {
-    const changedEntries = [ ...this.state.entries ];
+    const changedEntries = [...this.state.entries];
     changedEntries.forEach((entry, index) => {
-      changedEntries[index] = { ...entry, mandatoryFieldsCheck: checked};
+      changedEntries[index] = { ...entry, mandatoryFieldsCheck: checked };
     });
-    this.setState({ entries: changedEntries });
-  }
+    this.setState({ entries: changedEntries }, () =>
+      BibtexAPI.update({
+        entries: this.state.entries
+      })
+    );
+  };
 
   toggleMandatorFieldCheck = id =>
-    this.changeMandatoryFieldCheck(id, !this.state.entries[id].mandatoryFieldsCheck)
+    this.changeMandatoryFieldCheck(
+      id,
+      !this.state.entries[id].mandatoryFieldsCheck
+    );
 
   changeMandatoryFieldCheck = (id, checked) => {
     const changedEntries = [...this.state.entries];
-    const changedEntry = { ...changedEntries[id], mandatoryFieldsCheck: checked };
+    const changedEntry = {
+      ...changedEntries[id],
+      mandatoryFieldsCheck: checked
+    };
     changedEntries[id] = changedEntry;
     this.setState({ entries: changedEntries });
-  }
+  };
 
   searchMandatoryFieldSuggestion = () => {
     const changedEntries = [...this.state.entries];
-    changedEntries.filter(entry => entry.mandatoryFieldsCheck && entry.missingRequiredFields.length > 0)
+    changedEntries
+      .filter(
+        entry =>
+          entry.mandatoryFieldsCheck && entry.missingRequiredFields.length > 0
+      )
       .forEach(entry => {
         const changedEntry = { ...changedEntries[entry.id] };
-        this.searchFieldSuggestion(changedEntry.TITLE)
-          .then(result => {
-            if (result.title.length > 0 &&
-              result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())) {
-              const changedMissingFields = [...entry.missingRequiredFields];
-              changedMissingFields.forEach(missingField => {
-                const missingFieldUpperCase = missingField.toUpperCase();
-                if ((missingFieldUpperCase === "BOOKTITLE" || missingFieldUpperCase === "JOURNAL") &&
-                  result["container-title"] != null && result["container-title"].length > 0) {
-                  changedEntry.mandatoryFieldsSuggestions[missingFieldUpperCase] = result["container-title"][0];
-                  changedEntries[entry.id] = changedEntry;
-                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+        this.searchFieldSuggestion(changedEntry.TITLE).then(result => {
+          if (
+            result.title.length > 0 &&
+            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())
+          ) {
+            const changedMissingFields = [...entry.missingRequiredFields];
+            changedMissingFields.forEach(missingField => {
+              const missingFieldUpperCase = missingField.toUpperCase();
+              if (
+                (missingFieldUpperCase === "BOOKTITLE" ||
+                  missingFieldUpperCase === "JOURNAL") &&
+                result["container-title"] != null &&
+                result["container-title"].length > 0
+              ) {
+                changedEntry.mandatoryFieldsSuggestions[missingFieldUpperCase] =
+                  result["container-title"][0];
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
                     entries: this.state.entries
-                  }));
-                }
-                if (missingFieldUpperCase === "YEAR" && result.created != null) {
-                  changedEntry.mandatoryFieldsSuggestions.YEAR = result.created["date-parts"][0][0];
-                  changedEntries[entry.id] = changedEntry;
-                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+                  })
+                );
+              }
+              if (missingFieldUpperCase === "YEAR" && result.created != null) {
+                changedEntry.mandatoryFieldsSuggestions.YEAR =
+                  result.created["date-parts"][0][0];
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
                     entries: this.state.entries
-                  }));
-                }
-                if (missingFieldUpperCase === "AUTHOR" && result.author != null && result.author.length > 0) {
-                  const authors = result.author.map(author => ({
-                    name: `${author.family}, ${author.given}`,
-                    abbreviated: false,
-                    changedAbbreviation: false,
-                    misspelling: false,
-                    changedMisspelling: false,
-                    suggestion: []
-                  }));
-                  changedEntry.mandatoryFieldsSuggestions.AUTHOR = authors;
-                  changedEntries[entry.id] = changedEntry;
-                  this.setState({ entries: changedEntries }, () => BibtexAPI.update({
+                  })
+                );
+              }
+              if (
+                missingFieldUpperCase === "AUTHOR" &&
+                result.author != null &&
+                result.author.length > 0
+              ) {
+                const authors = result.author.map(author => ({
+                  name: `${author.family}, ${author.given}`,
+                  abbreviated: false,
+                  changedAbbreviation: false,
+                  misspelling: false,
+                  changedMisspelling: false,
+                  suggestion: []
+                }));
+                changedEntry.mandatoryFieldsSuggestions.AUTHOR = authors;
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
                     entries: this.state.entries
-                  }));
-                }
-              });
-            }
-          });
+                  })
+                );
+              }
+            });
+          }
+        });
       });
+  };
 
-  }
+  addMissingFields = () => {
+    const changedEntries = [...this.state.entries];
+    changedEntries
+      .filter(
+        entry =>
+          entry.mandatoryFieldsCheck &&
+          entry.missingRequiredFields.length > 0 &&
+          Object.keys(entry.mandatoryFieldsSuggestions).length > 0
+      )
+      .forEach(entry => {
+        const changedEntry = { ...entry, ...entry.mandatoryFieldsSuggestions };
+        const suggestedFieldsKeys = Object.keys(
+          changedEntry.mandatoryFieldsSuggestions
+        );
+        let changedMissingRequiredFields = [
+          ...changedEntry.missingRequiredFields
+        ];
+        suggestedFieldsKeys.forEach(field => {
+          changedMissingRequiredFields = changedMissingRequiredFields.filter(
+            missingField => missingField !== field.toLowerCase()
+          );
+        });
+        changedEntry.missingRequiredFields = changedMissingRequiredFields;
+        changedEntries[entry.id] = changedEntry;
+      });
+    this.setState({ entries: changedEntries }, () =>
+      this.changeAllMandatoryFieldCheck(false)
+    );
+  };
 
   render() {
     return (
@@ -567,15 +462,11 @@ class App extends Component {
           authorNameOptions={this.state.authorNameOptions}
           changeAuthorNameOption={this.changeAuthorNameOption}
           changeAllAuthorNameOptions={this.changeAllAuthorNameOptions}
-          missingFieldsOptions={this.state.missingFieldsOptions}
-          changeMissingFieldsOption={this.changeMissingFieldsOption}
-          changeFieldSuggestion={this.changeFieldSuggestion}
-          addMissingField={this.addMissingField}
-          selectAllMissingFieldsOptions={this.selectAllMissingFieldsOptions}
           changeMandatoryFieldCheck={this.changeMandatoryFieldCheck}
           toggleMandatorFieldCheck={this.toggleMandatorFieldCheck}
           searchMandatoryFieldSuggestion={this.searchMandatoryFieldSuggestion}
           changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
+          addMissingFields={this.addMissingFields}
         />
       </div>
     );
