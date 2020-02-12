@@ -11,6 +11,10 @@ class MandatoryFieldsCheck extends Component {
     this.props.changeAllMandatoryFieldCheck(newAllSelectedState);
   };
 
+  getMissingFieldEntriesSum = () =>
+    this.props.entries.filter(entry => entry.missingRequiredFields.length > 0)
+      .length;
+
   render() {
     return (
       <div>
@@ -18,13 +22,11 @@ class MandatoryFieldsCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{this.props.entries.length} entries found</li>
-            <li>
-              {`${
-                this.props.entries.filter(
-                  entry => entry.missingRequiredFields.length > 0
-                ).length
-              } entries with missing required fields found`}
-            </li>
+            {this.getMissingFieldEntriesSum() > 0 && (
+              <li>
+                {`${this.getMissingFieldEntriesSum()} entries with missing required fields found`}
+              </li>
+            )}
           </ul>
         </div>
         {this.props.entries.length > 0 && (

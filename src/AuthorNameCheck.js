@@ -70,7 +70,7 @@ class AuthorNameCheck extends Component {
               }
               disabled={!this.props.authorNameOptions.some(option => option.checked)}
             >
-              Search author suggestion
+              Search author suggestion online
             </button>
             <button
               onClick={() =>
@@ -81,7 +81,7 @@ class AuthorNameCheck extends Component {
               }
               disabled={!this.props.authorNameOptions.some(option => option.checked)}
             >
-              change author name to suggestion
+              Change author name to suggestion
             </button>
             <table>
               <tbody>

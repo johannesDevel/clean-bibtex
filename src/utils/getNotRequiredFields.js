@@ -1,5 +1,5 @@
 const getNotRequiredFields = (entryType, entryKeys) => {
-  let requiredFields = [ 'TITLE' ];
+  let requiredFields = [ 'TITLE', 'AUTHOR', 'URL' ];
   
   if (entryType === 'ARTICLE') requiredFields = [ 'TITLE', 'AUTHOR', 'JOURNAL', 'YEAR' ];
   if (entryType === 'BOOK') requiredFields = [ 'TITLE', 'AUTHOR', 'PUBLISHER', 'YEAR' ];
