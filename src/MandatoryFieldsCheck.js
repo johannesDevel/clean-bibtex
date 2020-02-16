@@ -124,7 +124,7 @@ class MandatoryFieldsCheck extends Component {
                         ))}
                       {entry.missingRequiredFields.length > 0 && (
                         <div>
-                          Missing required fields:{" "}
+                          <strong>Missing required fields: </strong>
                           {entry.missingRequiredFields.map(field => (
                             <span
                               key={entry.id + field}
