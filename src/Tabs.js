@@ -20,7 +20,7 @@ class Tabs extends Component {
 
     return (
       <div className="tabs">
-        <ol className="tab-list">
+        <ul className="tab-list">
           {children.map(child => {
             const { label, status } = child.props;
             return (
@@ -33,7 +33,7 @@ class Tabs extends Component {
               />
             );
           })}
-        </ol>
+        </ul>
         <div className="tab-content">
           {children.map(child => {
             if (child.props.label !== activeTab) {

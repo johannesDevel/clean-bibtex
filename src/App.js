@@ -150,22 +150,6 @@ class App extends Component {
         .concat([optionToChange])
     }));
 
-  // changeMissingFieldsOption = missingFieldsOption => {
-  //   this.setState(prevState => {
-  //     const changedOptions = prevState.missingFieldsOptions.map(option => {
-  //       if (
-  //         option.entryId === missingFieldsOption.entryId &&
-  //         option.field === missingFieldsOption.field
-  //       ) {
-  //         const changedOption = Object.assign({}, missingFieldsOption);
-  //         changedOption.checked = !changedOption.checked;
-  //         return changedOption;
-  //       } else return option;
-  //     });
-  //     return { missingFieldsOptions: changedOptions };
-  //   });
-  // };
-
   loadDataFromServer = stateServer =>
     this.setState({
       entries: stateServer.entries,
