@@ -66,6 +66,7 @@ class AnalyzeErrors extends Component {
                   changeAllAuthorNameOptions={
                     this.props.changeAllAuthorNameOptions
                   }
+                  searchSuggestionFile={this.props.searchSuggestionFile}
                 />
               </div>
               <div

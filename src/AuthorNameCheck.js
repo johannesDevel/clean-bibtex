@@ -74,6 +74,14 @@ class AuthorNameCheck extends Component {
             </button>
             <button
               onClick={() =>
+                this.setState({ allSelected: false }, this.props.searchSuggestionFile())
+              }
+              disabled={!this.props.authorNameOptions.some(option => option.checked)}
+            >
+              Search author suggestion in file
+            </button>
+            <button
+              onClick={() =>
                 this.setState(
                   { allSelected: false },
                   this.props.changeAuthorName()

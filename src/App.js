@@ -26,8 +26,8 @@ class App extends Component {
     );
   }
 
-  setInitialAuthorNameOptions = entries =>
-    entries
+  setInitialAuthorNameOptions = entries => {
+    return entries
       .filter(
         entry =>
           entry.AUTHOR != null &&
@@ -59,6 +59,7 @@ class App extends Component {
         if (author1.author > author2.author) return 1;
         return 0;
       });
+  };
 
   getEntriesFromServer = () => {
     BibtexAPI.get().then(stateServer => {
@@ -239,7 +240,10 @@ class App extends Component {
                 const changedEntries = prevState.entries.map(entry => {
                   if (entry.id === option.entryId) {
                     const changedAuthors = entry.AUTHOR.map(author => {
-                      if (author.name === option.author) {
+                      if (
+                        author.name === option.author &&
+                        !author.suggestion.includes(foundAuthorSuggestion)
+                      ) {
                         const changedAuthor = Object.assign({}, author);
                         changedAuthor.suggestion.unshift(foundAuthorSuggestion);
                         return changedAuthor;
@@ -264,6 +268,38 @@ class App extends Component {
     this.setState(prevState => ({
       authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
     }));
+  };
+
+  searchSuggestionFile = () => {
+    const changedEntries = [...this.state.entries];
+    this.state.authorNameOptions
+      .filter(option => option.checked && option.suggestion.length > 1)
+      .forEach(option => {
+        const changedEntry = {
+          ...changedEntries.find(entry => entry.id === option.entryId)
+        };
+        const changedAuthors = [...changedEntry.AUTHOR];
+        const changedFoundAuthor = {
+          ...changedAuthors.find(author => author.name === option.author)
+        };
+        const lastSuggestion =
+          changedFoundAuthor.suggestion[
+            changedFoundAuthor.suggestion.length - 1
+          ];
+        changedFoundAuthor.suggestion = [];
+        changedFoundAuthor.suggestion.unshift(lastSuggestion);
+        changedAuthors[changedFoundAuthor.id] = changedFoundAuthor;
+        changedEntry.AUTHOR = changedAuthors;
+        changedEntries[changedEntry.id] = changedEntry;
+      });
+    this.setState({ entries: changedEntries }, () => {
+      BibtexAPI.update({
+        entries: this.state.entries
+      });
+      this.setState(prevState => ({
+        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
+      }));
+    });
   };
 
   searchAuthorSuggestion = (title, author) => {
@@ -427,19 +463,27 @@ class App extends Component {
   };
 
   removeNotMandatoryFields = () => {
-    const changedEntries = [ ...this.state.entries ];
-    changedEntries.filter(entry => entry.mandatoryFieldsCheck)
-    .forEach(entry => {
-      const changedEntry = { ...entry };
-      const entryKeys = Object.keys(changedEntry).filter(keys => keys === keys.toUpperCase());
-      const notRequiredFields = getNotRequiredFields(changedEntry.entryType, entryKeys);
-      notRequiredFields.forEach(field => {
-        delete changedEntry[field];
+    const changedEntries = [...this.state.entries];
+    changedEntries
+      .filter(entry => entry.mandatoryFieldsCheck)
+      .forEach(entry => {
+        const changedEntry = { ...entry };
+        const entryKeys = Object.keys(changedEntry).filter(
+          keys => keys === keys.toUpperCase()
+        );
+        const notRequiredFields = getNotRequiredFields(
+          changedEntry.entryType,
+          entryKeys
+        );
+        notRequiredFields.forEach(field => {
+          delete changedEntry[field];
+        });
+        changedEntries[entry.id] = changedEntry;
       });
-      changedEntries[entry.id] = changedEntry;
-    });
-    this.setState({ entries: changedEntries }, () => this.changeAllMandatoryFieldCheck(false));
-  }
+    this.setState({ entries: changedEntries }, () =>
+      this.changeAllMandatoryFieldCheck(false)
+    );
+  };
 
   render() {
     return (
@@ -468,6 +512,7 @@ class App extends Component {
           changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
           addMissingFields={this.addMissingFields}
           removeNotMandatoryFields={this.removeNotMandatoryFields}
+          searchSuggestionFile={this.searchSuggestionFile}
         />
       </div>
     );
