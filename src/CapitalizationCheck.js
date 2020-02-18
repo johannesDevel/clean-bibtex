@@ -111,9 +111,7 @@ class CapitalizationCheck extends Component {
                       onChange={() => this.selectAll()}
                     />
                   </th>
-                  <th>
-                    Current
-                  </th>
+                  <th>Current</th>
                   <th>Title case</th>
                   <th>Sentence case</th>
                 </tr>
@@ -126,28 +124,30 @@ class CapitalizationCheck extends Component {
                         entry.capitalization === "titleCase"
                           ? "table-entry-green"
                           : entry.capitalization === "sentenceCase"
-                            ? "table-entry-blue"
-                            : "table-entry-red"
+                          ? "table-entry-blue"
+                          : "table-entry-red"
                       }
                     >
-                      <input
-                        id={entry.id}
-                        type="checkBox"
-                        checked={
-                          optionsCheckboxes.find(
-                            option => option.id === entry.id
-                          ).checked
-                        }
-                        onChange={() => this.handleChangeOption(entry.id)}
-                      />
+                      <center>
+                        <input
+                          id={entry.id}
+                          type="checkBox"
+                          checked={
+                            optionsCheckboxes.find(
+                              option => option.id === entry.id
+                            ).checked
+                          }
+                          onChange={() => this.handleChangeOption(entry.id)}
+                        />
+                      </center>
                     </td>
                     <td
                       className={
                         entry.capitalization === "titleCase"
                           ? "table-entry-green"
                           : entry.capitalization === "sentenceCase"
-                            ? "table-entry-blue"
-                            : "table-entry-red"
+                          ? "table-entry-blue"
+                          : "table-entry-red"
                       }
                     >
                       {entry.TITLE}

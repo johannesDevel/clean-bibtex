@@ -40,17 +40,6 @@ class MandatoryFieldsCheck extends Component {
               Search missing fields online
             </button>
             <button
-              disabled={
-                !this.props.entries.some(entry => entry.mandatoryFieldsCheck)
-              }
-              onClick={() => {
-                this.setState({ allSelected: false });
-                this.props.addMissingFields();
-              }}
-            >
-              Add field suggestion to entry
-            </button>
-            <button
               onClick={() => {
                 this.setState({ allSelected: false });
                 this.props.removeNotMandatoryFields();
@@ -60,6 +49,17 @@ class MandatoryFieldsCheck extends Component {
               }
             >
               Remove not mandatory fields
+            </button>
+            <button
+              disabled={
+                !this.props.entries.some(entry => entry.mandatoryFieldsCheck)
+              }
+              onClick={() => {
+                this.setState({ allSelected: false });
+                this.props.addMissingFields();
+              }}
+            >
+              Add field suggestion to entry
             </button>
             <table>
               <tbody>
@@ -123,7 +123,7 @@ class MandatoryFieldsCheck extends Component {
                           </div>
                         ))}
                       {entry.missingRequiredFields.length > 0 && (
-                        <div>
+                        <div className="mandatory-missing-fields-text">
                           <strong>Missing required fields: </strong>
                           {entry.missingRequiredFields.map(field => (
                             <span
@@ -159,7 +159,7 @@ class MandatoryFieldsCheck extends Component {
                                 </div>
                               )
                           )
-                        : "-"}
+                        : entry.checkedSearched ? 'not found' : '-'}
                     </td>
                   </tr>
                 </tbody>

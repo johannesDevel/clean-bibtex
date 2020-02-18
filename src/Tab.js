@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import ErrorIcon from '../src/icons/Error';
+import OKIcon from '../src/icons/Exito';
 
 // import PropTypes from 'prop-types';
 
@@ -22,7 +24,11 @@ class Tab extends Component {
 
     return (
       <li className={className} onClick={onClick}>
-        {`${label} - ${status ? 'ok' : 'inconsistencies found'}`}
+        {`${label} `}
+        {status
+        ? <OKIcon width="20px" height="20px" />
+        : <ErrorIcon width="20px" height="20px" />
+        }
       </li>
     );
   }

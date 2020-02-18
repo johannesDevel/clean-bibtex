@@ -79,26 +79,37 @@ class AnalyzeErrors extends Component {
               >
                 <MandatoryFieldsCheck
                   entries={this.props.entries}
-                  changeMandatoryFieldCheck={this.props.changeMandatoryFieldCheck}
+                  changeMandatoryFieldCheck={
+                    this.props.changeMandatoryFieldCheck
+                  }
                   toggleMandatorFieldCheck={this.props.toggleMandatorFieldCheck}
-                  searchMandatoryFieldSuggestion={this.props.searchMandatoryFieldSuggestion}
-                  changeAllMandatoryFieldCheck={this.props.changeAllMandatoryFieldCheck}
+                  searchMandatoryFieldSuggestion={
+                    this.props.searchMandatoryFieldSuggestion
+                  }
+                  changeAllMandatoryFieldCheck={
+                    this.props.changeAllMandatoryFieldCheck
+                  }
                   addMissingFields={this.props.addMissingFields}
                   removeNotMandatoryFields={this.props.removeNotMandatoryFields}
                 />
               </div>
             </Tabs>
           </div>
-          <button
-            className="download-button"
-            onClick={() =>
-              BibtexAPI.getChangedBibtex().then(result =>
-                this.downloadBibtex(result)
-              )
-            }
-          >
-            Download BibTeX
-          </button>
+          <div className="download-button-container">
+            <button
+              className="download-button"
+              disabled={
+                this.props.entries == null || this.props.entries.length <= 0
+              }
+              onClick={() =>
+                BibtexAPI.getChangedBibtex().then(result =>
+                  this.downloadBibtex(result)
+                )
+              }
+            >
+              Download changes as BibTeX
+            </button>
+          </div>
         </div>
       </div>
     );

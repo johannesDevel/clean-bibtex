@@ -20,7 +20,6 @@ class AppStart extends Component {
       this.state.textInput.length > 30 &&
       this.state.textInput.includes("@")
     ) {
-      console.log("is probably bibtex, will send to server");
       this.props.setBibtex(this.state.textInput);
     } else {
       console.log("is not a bibtex, not sending to server");

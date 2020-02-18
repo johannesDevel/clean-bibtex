@@ -15,7 +15,6 @@ function FileUpload(props) {
     if (file) {
       readFileAsText(file).then(text => {
         if (text.length > 3) {
-          // console.log(text);
           props.setBibtex(text);
         }
       });
@@ -28,7 +27,7 @@ function FileUpload(props) {
         <br />
         <br />
         <br />
-        Upload BibteX
+        Upload BibTeX
       </label>
       <input
         id="file"

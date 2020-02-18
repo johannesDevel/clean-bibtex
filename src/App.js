@@ -372,10 +372,11 @@ class App extends Component {
       )
       .forEach(entry => {
         const changedEntry = { ...changedEntries[entry.id] };
+        changedEntry.checkedSearched = true;
         this.searchFieldSuggestion(changedEntry.TITLE).then(result => {
           if (
             result.title.length > 0 &&
-            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase())
+            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase()[0])
           ) {
             const changedMissingFields = [...entry.missingRequiredFields];
             changedMissingFields.forEach(missingField => {
@@ -394,10 +395,24 @@ class App extends Component {
                     entries: this.state.entries
                   })
                 );
+              } else {
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
+                    entries: this.state.entries
+                  })
+                );
               }
               if (missingFieldUpperCase === "YEAR" && result.created != null) {
                 changedEntry.mandatoryFieldsSuggestions.YEAR =
                   result.created["date-parts"][0][0];
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
+                    entries: this.state.entries
+                  })
+                );
+              } else {
                 changedEntries[entry.id] = changedEntry;
                 this.setState({ entries: changedEntries }, () =>
                   BibtexAPI.update({
@@ -425,8 +440,22 @@ class App extends Component {
                     entries: this.state.entries
                   })
                 );
+              } else {
+                changedEntries[entry.id] = changedEntry;
+                this.setState({ entries: changedEntries }, () =>
+                  BibtexAPI.update({
+                    entries: this.state.entries
+                  })
+                );
               }
             });
+          } else {
+            changedEntries[entry.id] = changedEntry;
+            this.setState({ entries: changedEntries }, () =>
+              BibtexAPI.update({
+                entries: this.state.entries
+              })
+            );
           }
         });
       });
@@ -490,7 +519,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <a className="App-link" href="app">
-            cleanBibteX
+            cleanBibTeX
           </a>
         </header>
         <AppStart setBibtex={this.onSetBibtexText} />
