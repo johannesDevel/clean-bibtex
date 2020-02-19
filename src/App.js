@@ -518,9 +518,9 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <a className="App-link" href="app">
+          <div className="App-header-text">
             cleanBibTeX
-          </a>
+          </div>
         </header>
         <AppStart setBibtex={this.onSetBibtexText} />
         <AnalyzeErrors

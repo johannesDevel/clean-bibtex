@@ -11,7 +11,7 @@ body {
   display: flex;
 }
 
-.App-link {
+.App-header-text {
   color: white;
   font-size: 43px;
   margin: 15px;
@@ -69,6 +69,7 @@ body {
   display: block;
   height: 100%;
   text-align: center;
+  cursor: pointer;
 }
 
 button {
@@ -107,6 +108,7 @@ button {
   font-size: 1.5em;
   margin-right: auto;
   margin-left: auto;
+  cursor: pointer;
 }
 
 .tab-list {
