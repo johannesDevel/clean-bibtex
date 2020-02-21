@@ -376,7 +376,9 @@ class App extends Component {
         this.searchFieldSuggestion(changedEntry.TITLE).then(result => {
           if (
             result.title.length > 0 &&
-            result.title[0].toLowerCase().startsWith(entry.TITLE.toLowerCase()[0])
+            result.title[0]
+              .toLowerCase()
+              .startsWith(entry.TITLE.toLowerCase()[0])
           ) {
             const changedMissingFields = [...entry.missingRequiredFields];
             changedMissingFields.forEach(missingField => {
@@ -518,31 +520,31 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <div className="App-header-text">
-            cleanBibTeX
-          </div>
+          <div className="App-header-text">cleanBibTeX</div>
         </header>
         <AppStart setBibtex={this.onSetBibtexText} />
-        <AnalyzeErrors
-          entries={this.state.entries}
-          capitalizationOptions={this.state.capitalizationOptions}
-          changeOption={this.changeOptionsCheckboxes}
-          changeAllOptions={this.changeAllOptions}
-          changeSelectedCapitalization={this.changeSelectedCapitalization}
-          getEntriesFromServer={this.getEntriesFromServer}
-          changeAuthorName={this.changeAuthorName}
-          changeAuthorSuggestion={this.changeAuthorSuggestion}
-          authorNameOptions={this.state.authorNameOptions}
-          changeAuthorNameOption={this.changeAuthorNameOption}
-          changeAllAuthorNameOptions={this.changeAllAuthorNameOptions}
-          changeMandatoryFieldCheck={this.changeMandatoryFieldCheck}
-          toggleMandatorFieldCheck={this.toggleMandatorFieldCheck}
-          searchMandatoryFieldSuggestion={this.searchMandatoryFieldSuggestion}
-          changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
-          addMissingFields={this.addMissingFields}
-          removeNotMandatoryFields={this.removeNotMandatoryFields}
-          searchSuggestionFile={this.searchSuggestionFile}
-        />
+        {this.state.entries != null && this.state.entries.length > 0 && (
+          <AnalyzeErrors
+            entries={this.state.entries}
+            capitalizationOptions={this.state.capitalizationOptions}
+            changeOption={this.changeOptionsCheckboxes}
+            changeAllOptions={this.changeAllOptions}
+            changeSelectedCapitalization={this.changeSelectedCapitalization}
+            getEntriesFromServer={this.getEntriesFromServer}
+            changeAuthorName={this.changeAuthorName}
+            changeAuthorSuggestion={this.changeAuthorSuggestion}
+            authorNameOptions={this.state.authorNameOptions}
+            changeAuthorNameOption={this.changeAuthorNameOption}
+            changeAllAuthorNameOptions={this.changeAllAuthorNameOptions}
+            changeMandatoryFieldCheck={this.changeMandatoryFieldCheck}
+            toggleMandatorFieldCheck={this.toggleMandatorFieldCheck}
+            searchMandatoryFieldSuggestion={this.searchMandatoryFieldSuggestion}
+            changeAllMandatoryFieldCheck={this.changeAllMandatoryFieldCheck}
+            addMissingFields={this.addMissingFields}
+            removeNotMandatoryFields={this.removeNotMandatoryFields}
+            searchSuggestionFile={this.searchSuggestionFile}
+          />
+        )}
       </div>
     );
   }

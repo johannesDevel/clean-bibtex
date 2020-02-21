@@ -56,51 +56,56 @@ class AuthorNameCheck extends Component {
           <h3>Summary</h3>
           <ul>
             <li>{this.props.entries.length} entries found</li>
-            <li>
-              {this.getInconsistentAuthorEntriesCount().length} entries with
-              inconsistent author names found
-            </li>
+            {this.getInconsistentAuthorEntriesCount().length > 0 && (
+              <li>
+                {this.getInconsistentAuthorEntriesCount().length} entries with
+                inconsistent author names found
+              </li>
+            )}
           </ul>
         </div>
         {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
             <div>
-            <button
-              onClick={() =>
-                this.setState({ allSelected: false }, this.searchSuggestions())
-              }
-              disabled={
-                !this.props.authorNameOptions.some(option => option.checked)
-              }
-            >
-              Search suggestion online
-            </button>
-            <button
-              onClick={() =>
-                this.setState(
-                  { allSelected: false },
-                  this.props.searchSuggestionFile()
-                )
-              }
-              disabled={
-                !this.props.authorNameOptions.some(option => option.checked)
-              }
-            >
-              Search suggestion in file
-            </button>
-            <button
-              onClick={() =>
-                this.setState(
-                  { allSelected: false },
-                  this.props.changeAuthorName()
-                )
-              }
-              disabled={
-                !this.props.authorNameOptions.some(option => option.checked)
-              }
-            >
-              Change author name to suggestion
-            </button>
+              <button
+                onClick={() =>
+                  this.setState(
+                    { allSelected: false },
+                    this.searchSuggestions()
+                  )
+                }
+                disabled={
+                  !this.props.authorNameOptions.some(option => option.checked)
+                }
+              >
+                Search suggestion online
+              </button>
+              <button
+                onClick={() =>
+                  this.setState(
+                    { allSelected: false },
+                    this.props.searchSuggestionFile()
+                  )
+                }
+                disabled={
+                  !this.props.authorNameOptions.some(option => option.checked)
+                }
+              >
+                Search suggestion in file
+              </button>
+              <button
+                onClick={() =>
+                  this.setState(
+                    { allSelected: false },
+                    this.props.changeAuthorName()
+                  )
+                }
+                disabled={
+                  !this.props.authorNameOptions.some(option => option.checked)
+                }
+              >
+                Change author name to suggestion
+              </button>
             </div>
             <table>
               <tbody>
