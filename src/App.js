@@ -662,9 +662,9 @@ class App extends Component {
           <div className="App-header-text">cleanBibTeX</div>
         </header>
         <AppStart setBibtex={this.onSetBibtexText} />
+        <div className="start-status">{this.state.status}</div>
         {this.state.entries != null && this.state.entries.length > 0 && (
           <AnalyzeErrors
-            status={this.state.status}
             entries={this.state.entries}
             capitalizationOptions={this.state.capitalizationOptions}
             changeOption={this.changeOptionsCheckboxes}
