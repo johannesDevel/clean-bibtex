@@ -14,9 +14,7 @@ function FileUpload(props) {
     const file = event.target.files[0];
     if (file) {
       readFileAsText(file).then(text => {
-        if (text.length > 3) {
           props.setBibtex(text);
-        }
       });
     }
   };

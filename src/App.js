@@ -10,7 +10,8 @@ class App extends Component {
     bibtexText: "",
     entries: [],
     capitalizationOptions: [],
-    authorNameOptions: []
+    authorNameOptions: [],
+    status: ""
   };
 
   componentDidMount() {
@@ -51,6 +52,7 @@ class App extends Component {
           title: entry.TITLE,
           author: author.name,
           suggestion: author.suggestion,
+          onlineSuggestion: author.onlineSuggestion,
           checked: false
         }))
       )
@@ -99,7 +101,10 @@ class App extends Component {
             return Object.assign({}, entry);
           }
         });
-        return { entries: newEntries };
+        return {
+          entries: newEntries,
+          status: "changed capitalization of selected entries"
+        };
       },
       () => {
         BibtexAPI.update({
@@ -158,17 +163,50 @@ class App extends Component {
         id: entry.id,
         checked: false
       })),
-      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries)
+      authorNameOptions: this.setInitialAuthorNameOptions(stateServer.entries),
+      status:
+        stateServer.entries.length > 0
+          ? "BibTeX loaded successfully"
+          : "No BibTeX found"
     });
 
-  onSetBibtexText = textInput => {
-    const textInputObject = { bibtexText: textInput };
-    BibtexAPI.create(textInputObject).then(() =>
-      BibtexAPI.get().then(stateServer => this.loadDataFromServer(stateServer))
-    );
+  setInvalidFileInfo = () => {
+    this.setState({ status: "ERROR: could not read file, invalid BibTeX" });
   };
 
-  changeAuthorName = () => {
+  onSetBibtexText = textInput => {
+    if (textInput.length > 30 && textInput.includes("@")) {
+      this.setState({ status: "Found a new BibTeX and loaded entries" });
+      const textInputObject = { bibtexText: textInput };
+      BibtexAPI.create(textInputObject)
+        .then(() =>
+          BibtexAPI.get()
+            .then(stateServer =>
+              this.setState({
+                entries: stateServer.entries,
+                capitalizationOptions: stateServer.entries.map(entry => ({
+                  id: entry.id,
+                  checked: false
+                })),
+                authorNameOptions: this.setInitialAuthorNameOptions(
+                  stateServer.entries
+                ),
+                status:
+                  stateServer.entries.length > 0
+                    ? "Found a new BibTeX and loaded entries"
+                    : "No BibTeX found"
+              })
+            )
+            .catch(() => this.setInvalidFileInfo())
+        )
+        .catch(() => this.setInvalidFileInfo());
+    } else {
+      this.setInvalidFileInfo();
+    }
+  };
+
+  changeAuthorName = suggestionArray => {
+    let changedNames = 0;
     this.setState(
       prevState => {
         const newEnries = prevState.entries.map(entry => {
@@ -188,12 +226,15 @@ class App extends Component {
               );
               if (
                 authorOption != null &&
-                author.suggestion != null &&
-                author.suggestion.length > 0 &&
-                (author.abbreviated || author.misspelling)
+                author[suggestionArray] != null &&
+                author[suggestionArray].length > 0 &&
+                (author.abbreviated ||
+                  author.misspelling ||
+                  author.changedAbbreviation)
               ) {
                 const newAuthor = Object.assign({}, author);
-                newAuthor.name = newAuthor.suggestion[0];
+                newAuthor.name = newAuthor[suggestionArray][0];
+                changedNames++;
                 if (author.abbreviated) {
                   newAuthor.abbreviated = false;
                   newAuthor.changedAbbreviation = true;
@@ -211,7 +252,13 @@ class App extends Component {
             return entry;
           }
         });
-        return { entries: newEnries };
+        return {
+          entries: newEnries,
+          status:
+            changedNames > 0
+              ? `Changed ${changedNames} author name(s)`
+              : `Changed no author name`
+        };
       },
       () => {
         this.setState(
@@ -231,6 +278,8 @@ class App extends Component {
   };
 
   changeAuthorSuggestion = options => {
+    let foundCount = 0;
+    this.setState({ status: "searching author online..." });
     options.forEach(option => {
       this.searchAuthorSuggestion(option.title, option.author).then(
         foundAuthorSuggestion => {
@@ -242,10 +291,13 @@ class App extends Component {
                     const changedAuthors = entry.AUTHOR.map(author => {
                       if (
                         author.name === option.author &&
-                        !author.suggestion.includes(foundAuthorSuggestion)
+                        !author.onlineSuggestion.includes(foundAuthorSuggestion)
                       ) {
+                        foundCount++;
                         const changedAuthor = Object.assign({}, author);
-                        changedAuthor.suggestion.unshift(foundAuthorSuggestion);
+                        changedAuthor.onlineSuggestion.unshift(
+                          foundAuthorSuggestion
+                        );
                         return changedAuthor;
                       } else return author;
                     });
@@ -253,54 +305,62 @@ class App extends Component {
                     return entry;
                   } else return entry;
                 });
-                return { entries: changedEntries };
+                return {
+                  entries: changedEntries,
+                  status:
+                    foundCount > 0
+                      ? `Found ${foundCount} author name(s) online`
+                      : `No author name found`
+                };
               },
               () => {
                 BibtexAPI.update({
                   entries: this.state.entries
                 });
+                this.setState(prevState => ({
+                  authorNameOptions: this.setInitialAuthorNameOptions(
+                    prevState.entries
+                  )
+                }));
               }
             );
           }
         }
       );
     });
-    this.setState(prevState => ({
-      authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
-    }));
   };
 
-  searchSuggestionFile = () => {
-    const changedEntries = [...this.state.entries];
-    this.state.authorNameOptions
-      .filter(option => option.checked && option.suggestion.length > 1)
-      .forEach(option => {
-        const changedEntry = {
-          ...changedEntries.find(entry => entry.id === option.entryId)
-        };
-        const changedAuthors = [...changedEntry.AUTHOR];
-        const changedFoundAuthor = {
-          ...changedAuthors.find(author => author.name === option.author)
-        };
-        const lastSuggestion =
-          changedFoundAuthor.suggestion[
-            changedFoundAuthor.suggestion.length - 1
-          ];
-        changedFoundAuthor.suggestion = [];
-        changedFoundAuthor.suggestion.unshift(lastSuggestion);
-        changedAuthors[changedFoundAuthor.id] = changedFoundAuthor;
-        changedEntry.AUTHOR = changedAuthors;
-        changedEntries[changedEntry.id] = changedEntry;
-      });
-    this.setState({ entries: changedEntries }, () => {
-      BibtexAPI.update({
-        entries: this.state.entries
-      });
-      this.setState(prevState => ({
-        authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
-      }));
-    });
-  };
+  // searchSuggestionFile = () => {
+  //   const changedEntries = [...this.state.entries];
+  //   this.state.authorNameOptions
+  //     .filter(option => option.checked && option.suggestion.length > 1)
+  //     .forEach(option => {
+  //       const changedEntry = {
+  //         ...changedEntries.find(entry => entry.id === option.entryId)
+  //       };
+  //       const changedAuthors = [...changedEntry.AUTHOR];
+  //       const changedFoundAuthor = {
+  //         ...changedAuthors.find(author => author.name === option.author)
+  //       };
+  //       const lastSuggestion =
+  //         changedFoundAuthor.suggestion[
+  //           changedFoundAuthor.suggestion.length - 1
+  //         ];
+  //       changedFoundAuthor.suggestion = [];
+  //       changedFoundAuthor.suggestion.unshift(lastSuggestion);
+  //       changedAuthors[changedFoundAuthor.id] = changedFoundAuthor;
+  //       changedEntry.AUTHOR = changedAuthors;
+  //       changedEntries[changedEntry.id] = changedEntry;
+  //     });
+  //   this.setState({ entries: changedEntries }, () => {
+  //     BibtexAPI.update({
+  //       entries: this.state.entries
+  //     });
+  //     this.setState(prevState => ({
+  //       authorNameOptions: this.setInitialAuthorNameOptions(prevState.entries)
+  //     }));
+  //   });
+  // };
 
   searchAuthorSuggestion = (title, author) => {
     return BibtexAPI.searchAuthor(
@@ -364,6 +424,8 @@ class App extends Component {
   };
 
   searchMandatoryFieldSuggestion = () => {
+    this.setState({ status: "searching mandatory fields online..." });
+    let foundFields = 0;
     const changedEntries = [...this.state.entries];
     changedEntries
       .filter(
@@ -389,37 +451,71 @@ class App extends Component {
                 result["container-title"] != null &&
                 result["container-title"].length > 0
               ) {
+                foundFields++;
                 changedEntry.mandatoryFieldsSuggestions[missingFieldUpperCase] =
                   result["container-title"][0];
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               } else {
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                      ? `Found ${foundFields} mandatory field(s) online`
+                      : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               }
               if (missingFieldUpperCase === "YEAR" && result.created != null) {
+                foundFields++;
                 changedEntry.mandatoryFieldsSuggestions.YEAR =
                   result.created["date-parts"][0][0];
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                      ? `Found ${foundFields} mandatory field(s) online`
+                      : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               } else {
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                      ? `Found ${foundFields} mandatory field(s) online`
+                      : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               }
               if (
@@ -427,6 +523,7 @@ class App extends Component {
                 result.author != null &&
                 result.author.length > 0
               ) {
+                foundFields++;
                 const authors = result.author.map(author => ({
                   name: `${author.family}, ${author.given}`,
                   abbreviated: false,
@@ -437,26 +534,50 @@ class App extends Component {
                 }));
                 changedEntry.mandatoryFieldsSuggestions.AUTHOR = authors;
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                      ? `Found ${foundFields} mandatory field(s) online`
+                      : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               } else {
                 changedEntries[entry.id] = changedEntry;
-                this.setState({ entries: changedEntries }, () =>
-                  BibtexAPI.update({
-                    entries: this.state.entries
-                  })
+                this.setState(
+                  {
+                    entries: changedEntries,
+                    status:
+                      foundFields > 0
+                      ? `Found ${foundFields} mandatory field(s) online`
+                      : `Found no mandatory fields online`
+                  },
+                  () =>
+                    BibtexAPI.update({
+                      entries: this.state.entries
+                    })
                 );
               }
             });
           } else {
             changedEntries[entry.id] = changedEntry;
-            this.setState({ entries: changedEntries }, () =>
-              BibtexAPI.update({
-                entries: this.state.entries
-              })
+            this.setState(
+              {
+                entries: changedEntries,
+                status:
+                  foundFields > 0
+                  ? `Found ${foundFields} mandatory field(s) online`
+                  : `Found no mandatory fields online`
+              },
+              () =>
+                BibtexAPI.update({
+                  entries: this.state.entries
+                })
             );
           }
         });
@@ -465,6 +586,7 @@ class App extends Component {
 
   addMissingFields = () => {
     const changedEntries = [...this.state.entries];
+    let addedFieldSum = 0;
     changedEntries
       .filter(
         entry =>
@@ -481,6 +603,7 @@ class App extends Component {
           ...changedEntry.missingRequiredFields
         ];
         suggestedFieldsKeys.forEach(field => {
+          addedFieldSum++;
           changedMissingRequiredFields = changedMissingRequiredFields.filter(
             missingField => missingField !== field.toLowerCase()
           );
@@ -488,12 +611,20 @@ class App extends Component {
         changedEntry.missingRequiredFields = changedMissingRequiredFields;
         changedEntries[entry.id] = changedEntry;
       });
-    this.setState({ entries: changedEntries }, () =>
-      this.changeAllMandatoryFieldCheck(false)
+    this.setState(
+      {
+        entries: changedEntries,
+        status:
+          addedFieldSum > 0
+            ? `Added ${addedFieldSum} mandatory field(s) to entries`
+            : `Added no field`
+      },
+      () => this.changeAllMandatoryFieldCheck(false)
     );
   };
 
   removeNotMandatoryFields = () => {
+    let deletedFieldsSum = 0;
     const changedEntries = [...this.state.entries];
     changedEntries
       .filter(entry => entry.mandatoryFieldsCheck)
@@ -507,12 +638,20 @@ class App extends Component {
           entryKeys
         );
         notRequiredFields.forEach(field => {
+          deletedFieldsSum++;
           delete changedEntry[field];
         });
         changedEntries[entry.id] = changedEntry;
       });
-    this.setState({ entries: changedEntries }, () =>
-      this.changeAllMandatoryFieldCheck(false)
+    this.setState(
+      {
+        entries: changedEntries,
+        status:
+          deletedFieldsSum > 0
+            ? `Deleted ${deletedFieldsSum} field(s)`
+            : `Deleted no field`
+      },
+      () => this.changeAllMandatoryFieldCheck(false)
     );
   };
 
@@ -525,6 +664,7 @@ class App extends Component {
         <AppStart setBibtex={this.onSetBibtexText} />
         {this.state.entries != null && this.state.entries.length > 0 && (
           <AnalyzeErrors
+            status={this.state.status}
             entries={this.state.entries}
             capitalizationOptions={this.state.capitalizationOptions}
             changeOption={this.changeOptionsCheckboxes}

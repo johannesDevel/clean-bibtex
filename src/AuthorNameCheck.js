@@ -67,7 +67,8 @@ class AuthorNameCheck extends Component {
         {this.getInconsistentAuthorEntries().length > 0 && (
           <div className="corrections-table">
             <div>
-              <button
+              <div>
+              <button className="button-author-name-check"
                 onClick={() =>
                   this.setState(
                     { allSelected: false },
@@ -80,7 +81,7 @@ class AuthorNameCheck extends Component {
               >
                 Search suggestion online
               </button>
-              <button
+              {/* <button className="button-author-name-check"
                 onClick={() =>
                   this.setState(
                     { allSelected: false },
@@ -92,20 +93,34 @@ class AuthorNameCheck extends Component {
                 }
               >
                 Search suggestion in file
-              </button>
-              <button
+              </button> */}
+              <button className="button-author-name-check"
                 onClick={() =>
                   this.setState(
                     { allSelected: false },
-                    this.props.changeAuthorName()
+                    this.props.changeAuthorName('suggestion')
                   )
                 }
                 disabled={
                   !this.props.authorNameOptions.some(option => option.checked)
                 }
               >
-                Change author name to suggestion
+                Set author to file suggestion
               </button>
+              <button className="button-author-name-check"
+                onClick={() =>
+                  this.setState(
+                    { allSelected: false },
+                    this.props.changeAuthorName('onlineSuggestion')
+                  )
+                }
+                disabled={
+                  !this.props.authorNameOptions.some(option => option.checked)
+                }
+              >
+                Set author to online suggestion
+              </button>
+              </div>
             </div>
             <table>
               <tbody>
@@ -119,7 +134,8 @@ class AuthorNameCheck extends Component {
                     />
                   </th>
                   <th>Current Author Name</th>
-                  <th>Author Name Suggestion</th>
+                  <th>File suggestion</th>
+                  <th>Online suggestion</th>
                   <th>Entry Title</th>
                 </tr>
               </tbody>
@@ -164,6 +180,16 @@ class AuthorNameCheck extends Component {
                       {author.suggestion != null && author.suggestion.length > 0
                         ? author.suggestion[0]
                         : "no suggestion found"}
+                    </td>
+                    <td className={
+                        this.checkCorrectedAuthors(author)
+                          ? "table-entry-green"
+                          : (author.suggestion.length > 0 || author.onlineSuggestion.length > 0)
+                          ? "table-entry-blue"
+                          : "table-entry-red"
+                      }>
+                      {author.onlineSuggestion.length > 0 ? author.onlineSuggestion[0] : 'no suggestion found'}
+                      {/* {author.onlineSuggestion} */}
                     </td>
                     <td className="table-entry-grey">{author.title}</td>
                   </tr>

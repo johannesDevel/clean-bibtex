@@ -12,18 +12,7 @@ class AppStart extends Component {
   }
 
   onChangeText = text => {
-    this.setState({ textInput: text }, () => this.checkIfBibtex());
-  };
-
-  checkIfBibtex = () => {
-    if (
-      this.state.textInput.length > 30 &&
-      this.state.textInput.includes("@")
-    ) {
-      this.props.setBibtex(this.state.textInput);
-    } else {
-      console.log("is not a bibtex, not sending to server");
-    }
+    this.setState({ textInput: text }, () => this.props.setBibtex(this.state.textInput));
   };
 
   render() {

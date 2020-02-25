@@ -24,6 +24,7 @@ class AnalyzeErrors extends Component {
     return (
       <div className="start-wrapper">
         <div className="start">
+          <div className="start-status">{this.props.status}</div>
           <div>
             <Tabs>
               <div
