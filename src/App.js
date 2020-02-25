@@ -424,9 +424,20 @@ class App extends Component {
   };
 
   searchMandatoryFieldSuggestion = () => {
-    this.setState({ status: "searching mandatory fields online..." });
     let foundFields = 0;
     const changedEntries = [...this.state.entries];
+    if (
+      changedEntries.some(
+        entry =>
+          entry.mandatoryFieldsCheck && entry.missingRequiredFields.length > 0
+      )
+    ) {
+      this.setState({ status: "searching mandatory fields online..." });
+    } else {
+      this.setState({
+        status: "every mandatory field is available, searching not necessary"
+      });
+    }
     changedEntries
       .filter(
         entry =>
@@ -475,8 +486,8 @@ class App extends Component {
                     entries: changedEntries,
                     status:
                       foundFields > 0
-                      ? `Found ${foundFields} mandatory field(s) online`
-                      : `Found no mandatory fields online`
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
                   },
                   () =>
                     BibtexAPI.update({
@@ -494,8 +505,8 @@ class App extends Component {
                     entries: changedEntries,
                     status:
                       foundFields > 0
-                      ? `Found ${foundFields} mandatory field(s) online`
-                      : `Found no mandatory fields online`
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
                   },
                   () =>
                     BibtexAPI.update({
@@ -509,8 +520,8 @@ class App extends Component {
                     entries: changedEntries,
                     status:
                       foundFields > 0
-                      ? `Found ${foundFields} mandatory field(s) online`
-                      : `Found no mandatory fields online`
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
                   },
                   () =>
                     BibtexAPI.update({
@@ -539,8 +550,8 @@ class App extends Component {
                     entries: changedEntries,
                     status:
                       foundFields > 0
-                      ? `Found ${foundFields} mandatory field(s) online`
-                      : `Found no mandatory fields online`
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
                   },
                   () =>
                     BibtexAPI.update({
@@ -554,8 +565,8 @@ class App extends Component {
                     entries: changedEntries,
                     status:
                       foundFields > 0
-                      ? `Found ${foundFields} mandatory field(s) online`
-                      : `Found no mandatory fields online`
+                        ? `Found ${foundFields} mandatory field(s) online`
+                        : `Found no mandatory fields online`
                   },
                   () =>
                     BibtexAPI.update({
@@ -571,8 +582,8 @@ class App extends Component {
                 entries: changedEntries,
                 status:
                   foundFields > 0
-                  ? `Found ${foundFields} mandatory field(s) online`
-                  : `Found no mandatory fields online`
+                    ? `Found ${foundFields} mandatory field(s) online`
+                    : `Found no mandatory fields online`
               },
               () =>
                 BibtexAPI.update({
